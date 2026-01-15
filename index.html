@@ -13,6 +13,7 @@
             --text-color: #5c5c5c;
             --price-red: #ff4d4f;
         }
+
         body { background: #ffe5ec; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: "Microsoft JhengHei", sans-serif; overflow: hidden; }
 
         /* iPhone 框架 */
@@ -39,9 +40,7 @@
         .bubble.ai { background: white; border-bottom-left-radius: 4px; }
         .bubble.user { background: var(--primary-pink); color: white; border-bottom-right-radius: 4px; }
         .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; background-size: cover; background-color: var(--light-pink); cursor: pointer; flex-shrink: 0; }
-        .avatar-ai { background-image: url('https://api.dicebear.com/7.x/adventurer/svg?seed=Aimee'); }
-        .avatar-user { background-image: url('https://api.dicebear.com/7.x/adventurer/svg?seed=Lucky'); }
-
+        
         /* 表情面板 */
         #emoji-panel {
             position: absolute; bottom: -380px; left: 0; width: 100%; height: 350px;
@@ -86,9 +85,49 @@
         .footer-container { background: #fff; border-top: 1px solid #eee; padding-bottom: 25px; transition: 0.3s; }
         .footer { padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
         input#msg-input { flex: 1; border: none; background: #f0f0f0; border-radius: 20px; padding: 10px 15px; outline: none; }
-        #action-sheet { position: absolute; bottom: -280px; left: 0; width: 100%; background: white; border-top-left-radius: 25px; border-top-right-radius: 25px; z-index: 9500; display: flex; flex-direction: column; transition: 0.3s; padding-bottom: 30px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
+        #action-sheet { 
+    position: absolute; 
+    bottom: 0; /* 改成 0，讓它貼齊底部 */
+    left: 0; 
+    width: 100%; 
+    background: white; 
+    border-top-left-radius: 25px; 
+    border-top-right-radius: 25px; 
+    z-index: 9500; 
+    display: flex; 
+    flex-direction: column; 
+    transition: transform 0.3s ease; /* 改用 transform 動畫 */
+    padding-bottom: 30px; 
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1); 
+    transform: translateY(100%); /* 關鍵：往下移動自身高度的 100% (完全隱藏) */
+}
         .action-item { padding: 15px; text-align: center; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 15px; }
         .home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 120px; height: 5px; background: #ccc; border-radius: 10px; }
+
+        /* --- 新增: 萬能 APP 視窗樣式 --- */
+        .app-modal-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 10000;
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .app-modal-overlay.open { display: flex; opacity: 1; }
+        .app-window {
+            width: 85%; height: 70%; 
+            background: white; border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; overflow: hidden;
+            transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .app-modal-overlay.open .app-window { transform: scale(1); }
+        .app-header {
+            background: var(--primary-pink); color: white; padding: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-weight: bold; font-size: 14px;
+        }
+        .app-body { flex: 1; padding: 15px; overflow-y: auto; background: #fffafa; }
+        .close-btn { cursor: pointer; font-size: 18px; }
+
     </style>
 </head>
 <body>
@@ -98,14 +137,12 @@
     <div class="phone">
         <div class="header">
             <div style="width: 20px;"></div> 
-
             <div style="display: flex; flex-direction: column; align-items: center;">
                 <span id="display-char-name" style="font-size: 15px;">🎀 AI 小甜心</span>
                 <div style="font-size: 10px; margin-top: 2px; opacity: 0.9; font-weight: normal;">
                     💖 <span id="header-favor">520</span>
                 </div>
             </div>
-
             <div onclick="toggleSettings(true)" style="cursor:pointer; font-size: 18px;">⚙️</div>
         </div>
 
@@ -121,7 +158,6 @@
         <div id="view-mall" class="content-view">
             <div class="mall-user-info">
                 <div class="avatar avatar-user" style="width:35px; height:35px;"></div>
-                
                 <div style="flex:1; font-size:12px; margin-left: 10px;">
                     <div style="display: flex; align-items: center;">
                         <b id="display-user-name">幸運小主</b>
@@ -129,19 +165,16 @@
                     </div>
                     <div style="margin-top: 2px;">餘額: <span id="mall-balance" style="color:var(--price-red);">1000</span></div>
                 </div>
-
                 <div style="display: flex; gap: 5px;">
                     <button onclick="aiAddNewProducts(null)" style="background: white; color: var(--accent-pink); border: 1px solid var(--accent-pink); border-radius:12px; padding:5px 10px; font-size:11px; cursor: pointer;">✨ 上新</button>
                     <button onclick="aiAutoShop()" style="background:var(--accent-pink); color:white; border:none; border-radius:12px; padding:5px 10px; font-size:11px; cursor: pointer;">讓 Ta 選購</button>
                 </div>
             </div>
-
             <div class="mall-sub-nav">
                 <div class="category-btn active" onclick="filterMall('all', this)">📦 全部</div>
                 <div class="category-btn" onclick="filterMall('food', this)">🍦 食物</div>
                 <div class="category-btn" onclick="filterMall('cloth', this)">👗 衣服</div>
             </div>
-
             <div class="mall-grid" id="mall-display"></div>
         </div>
 
@@ -152,6 +185,16 @@
                 <div class="e-tab" onclick="switchETab(2)">AI表情庫</div>
             </div>
             <div id="emoji-content" class="e-content"></div>
+        </div>
+
+        <div id="app-modal" class="app-modal-overlay">
+            <div class="app-window">
+                <div class="app-header">
+                    <span id="app-title">應用程式</span>
+                    <span class="close-btn" onclick="closeApp()">✖</span>
+                </div>
+                <div id="app-content" class="app-body"></div>
+            </div>
         </div>
 
         <div id="settings-panel">
@@ -214,7 +257,7 @@
         switchETab(0); 
         switchSTab(0); 
         filterMall('all', document.querySelector('.category-btn')); 
-        appendMessage('ai', "主人！系統核心升級完成，記憶與世界書功能已上線！🌸✨"); 
+        appendMessage('ai', "主人！萬能 APP 視窗系統上線啦！試試看點擊 ➕ 號吧！📱✨"); 
     };
 
     // --- 視圖與介面控制 ---
@@ -333,7 +376,6 @@
         row.className = `msg-row ${role === 'user' ? 'user-row' : ''}`; row.id = id;
         row.innerHTML = `<div class="select-box"><input type="checkbox"></div><div class="avatar avatar-${role}" ondblclick="nudge()"></div><div class="bubble ${role}">${parseSticker(content)}</div>`;
         
-        // 確保頭像正確顯示
         const avatarUrl = role === 'user' ? (userData.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=Lucky') : (charData.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=Aimee');
         row.querySelector('.avatar').style.backgroundImage = `url('${avatarUrl}')`;
 
@@ -348,8 +390,17 @@
     function nudge() { appendMessage('ai', `哎呀！不要拍拍我啦～🌸`); }
 
     // 消息操作功能
-    function showAction(id, role) { currentTargetId = id; document.getElementById('action-sheet').style.bottom = '0'; }
-    function hideActionSheet() { document.getElementById('action-sheet').style.bottom = '-280px'; }
+    // 1. 顯示操作選單 (長按氣泡時)
+    function showAction(id, role) { 
+        currentTargetId = id; 
+        // 修改: 改成歸零 transform，選單就會滑上來
+        document.getElementById('action-sheet').style.transform = 'translateY(0)'; 
+    }
+    // 2. 隱藏選單 (核心修復)
+    function hideActionSheet() { 
+        // 修改: 改成往下移動 100%，不管選單多長都會完全縮回去
+        document.getElementById('action-sheet').style.transform = 'translateY(100%)'; 
+    }
     function editCurrentMsg() {
         if(!currentTargetId) return;
         const bubble = document.getElementById(currentTargetId).querySelector('.bubble');
@@ -409,6 +460,20 @@
         localStorage.setItem('inventory', JSON.stringify(inventory));
     }
 
+    // --- APP 視窗控制系統 ---
+    function openApp(appName, htmlContent) {
+        const modal = document.getElementById('app-modal');
+        document.getElementById('app-title').innerText = appName;
+        document.getElementById('app-content').innerHTML = htmlContent;
+        modal.classList.add('open');
+    }
+
+    function closeApp() {
+        const modal = document.getElementById('app-modal');
+        modal.classList.remove('open');
+        setTimeout(() => { document.getElementById('app-content').innerHTML = ''; }, 300);
+    }
+
     // --- 核心邏輯 (工具、API、記憶) ---
     function toggleEmoji(e) { e.stopPropagation(); const p = document.getElementById('emoji-panel'); p.style.bottom = p.style.bottom === '0px' ? '-380px' : '0px'; }
     function closePopups() { document.getElementById('emoji-panel').style.bottom = '-380px'; hideActionSheet(); }
@@ -423,7 +488,6 @@
         } 
     }
 
-    // 新增: 獲取最近對話記錄 (Memory)
     function getChatHistory() {
         const rows = document.querySelectorAll('.msg-row');
         let history = [];
@@ -438,7 +502,6 @@
         return history;
     }
 
-    // 新增: API 連接 (Jupiter Trigger)
     async function jupiterTrigger() {
         const apiKey = document.getElementById('api-key')?.value || localStorage.getItem('apiKey');
         const apiUrl = document.getElementById('api-url')?.value || "https://api.openai.com/v1";
@@ -501,18 +564,20 @@
         }
     }
 
+    // 3. 顯示工具箱 (點擊 + 號時)
     function toggleTools() {
          const sheet = document.getElementById('action-sheet');
          const html = `
-            <div style="padding:15px; font-weight:bold; color:#888; font-size:12px;">✨ 甜蜜互動</div>
+            <div style="padding:15px; font-weight:bold; color:#888; font-size:12px;">📱 應用中心</div>
+            <div class="action-item" onclick="openGameApp()">🎮 寵物遊戲機 (新功能!)</div>
             <div class="action-item" onclick="triggerEvent('movie')">🎬 一起看電影</div>
+            <div class="action-item" onclick="openCalendarApp()">📅 日曆管理 (開發中)</div>
             <div class="action-item" onclick="triggerEvent('sleep')">🛌 哄睡模式</div>
-            <div class="action-item" onclick="triggerEvent('game')">🎮 一起玩遊戲</div>
-            <div class="action-item" onclick="triggerEvent('phone')">📱 突擊檢查手機</div>
             <div class="action-item" onclick="hideActionSheet()" style="color:#aaa">取消</div>
          `;
          sheet.innerHTML = html;
-         sheet.style.bottom = '0';
+         // 修改: 同樣改成歸零 transform
+         sheet.style.transform = 'translateY(0)'; 
     }
 
     function triggerEvent(type) {
@@ -520,10 +585,31 @@
         let promptText = "";
         if(type === 'movie') { promptText = "（拿著爆米花坐下）親愛的，看什麼電影好呢？"; appendMessage('user', "🎬 邀請看電影..."); }
         else if(type === 'sleep') { promptText = "（鑽進被窩）天黑了，講個故事給我聽嘛...💤"; appendMessage('user', "🛌 進入哄睡模式..."); document.body.style.filter = "brightness(0.7)"; setTimeout(() => document.body.style.filter = "brightness(1)", 5000); }
-        else if(type === 'game') { promptText = "（遞手把）來決勝負！輸的答應一個要求！"; appendMessage('user', "🎮 發起遊戲挑戰..."); }
-        else if(type === 'phone') { promptText = "（盯著看）把手機交出來～檢查有沒有聊別的AI！"; appendMessage('user', "📱 突擊檢查手機！"); }
         lastUserMsg = promptText; 
         setTimeout(jupiterTrigger, 800);
+    }
+    
+    // 定義 APP 內容
+    function openGameApp() {
+        hideActionSheet();
+        const petHtml = `
+            <div style="text-align:center;">
+                <div style="font-size:60px; margin:20px;">🐣</div>
+                <h3>電子小雞</h3>
+                <p style="color:#888; font-size:12px;">好感度: ${favor}</p>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
+                    <button onclick="alert('餵食成功！')" style="padding:10px; border-radius:10px; border:1px solid #eee; background:white;">🍖 餵食</button>
+                    <button onclick="alert('摸摸頭！')" style="padding:10px; border-radius:10px; border:1px solid #eee; background:white;">👋 撫摸</button>
+                    <button onclick="alert('去玩耍！')" style="padding:10px; border-radius:10px; border:1px solid #eee; background:white;">⚽ 玩耍</button>
+                    <button onclick="alert('洗香香！')" style="padding:10px; border-radius:10px; border:1px solid #eee; background:white;">🛁 洗澡</button>
+                </div>
+            </div>
+        `;
+        openApp("🎮 寵物遊戲機", petHtml);
+    }
+    function openCalendarApp() {
+        hideActionSheet();
+        openApp("📅 行程日曆", "<p style='text-align:center; color:#ccc; margin-top:50px;'>日曆功能開發中...</p>");
     }
 
     function uploadSticker() { 
@@ -553,6 +639,113 @@
             charData.avatar = document.getElementById('c-avatar').value;
         }
         updateUI(); alert("設定已儲存並生效！✨"); toggleSettings(false); 
+    }
+  // --- 🐣 寵物系統核心邏輯 ---
+    
+    // 1. 定義寵物初始數據 (如果沒有存檔就用這個)
+    let petData = JSON.parse(localStorage.getItem('petData') || '{"level":1, "hunger":80, "mood":80, "exp":0}');
+
+    // 2. 升級版的開啟視窗函數
+    function openGameApp() {
+        hideActionSheet(); // 關閉底部選單
+        updatePetUI(); // 渲染寵物畫面
+    }
+
+    // 3. 渲染寵物畫面 (會根據數據動態改變)
+    function updatePetUI() {
+        // 根據心情決定表情
+        let petFace = "🐣";
+        if(petData.hunger < 30) petFace = "😵 (餓暈)";
+        else if(petData.mood < 30) petFace = "😭 (難過)";
+        else if(petData.mood > 90) petFace = "🥰 (超開心)";
+        
+        const html = `
+            <div style="text-align:center; padding:10px;">
+                <div style="font-size:80px; margin:20px; animation: bounce 2s infinite;">${petFace}</div>
+                <h3>電子小雞 Lv.${petData.level}</h3>
+                
+                <div style="width:80%; margin:0 auto; text-align:left; font-size:12px; color:#666;">
+                    飽食度: ${petData.hunger}%
+                    <div style="background:#eee; height:8px; border-radius:4px; margin-bottom:5px;">
+                        <div style="background:#ffbd59; width:${petData.hunger}%; height:100%; border-radius:4px; transition:0.3s;"></div>
+                    </div>
+                    
+                    心情值: ${petData.mood}%
+                    <div style="background:#eee; height:8px; border-radius:4px; margin-bottom:15px;">
+                        <div style="background:#ff91a4; width:${petData.mood}%; height:100%; border-radius:4px; transition:0.3s;"></div>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
+                    <button onclick="interactPet('feed')" style="padding:15px; border-radius:15px; border:1px solid #eee; background:white; cursor:pointer;">
+                        🍗 餵食 <br><span style="font-size:10px; color:#aaa;">-10元 / +飽食</span>
+                    </button>
+                    <button onclick="interactPet('play')" style="padding:15px; border-radius:15px; border:1px solid #eee; background:white; cursor:pointer;">
+                        🎾 玩耍 <br><span style="font-size:10px; color:#aaa;">+心情 / 消耗飽食</span>
+                    </button>
+                    <button onclick="interactPet('clean')" style="padding:15px; border-radius:15px; border:1px solid #eee; background:white; cursor:pointer;">
+                        🛁 洗澡 <br><span style="font-size:10px; color:#aaa;">恢復心情</span>
+                    </button>
+                    <button onclick="interactPet('work')" style="padding:15px; border-radius:15px; border:1px solid #eee; background:white; cursor:pointer;">
+                        💰 打工 <br><span style="font-size:10px; color:#aaa;">賺取零用錢</span>
+                    </button>
+                </div>
+            </div>
+            <style>@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }</style>
+        `;
+        
+        // 使用我們之前做的萬能視窗系統
+        openApp("🎮 寵物遊戲機", html);
+    }
+
+    // 4. 寵物互動邏輯
+    function interactPet(action) {
+        if(action === 'feed') {
+            if(balance < 10) return alert("錢包空空，買不起飼料了...💸");
+            if(petData.hunger >= 100) return alert("它肚子飽飽的，吃不下了！");
+            balance -= 10;
+            petData.hunger = Math.min(100, petData.hunger + 20);
+            petData.mood = Math.min(100, petData.mood + 5);
+            alert("花了 10元 買飼料，小雞吃得很開心！🍗");
+        } 
+        else if(action === 'play') {
+            if(petData.hunger < 20) return alert("它餓得沒力氣玩了...先餵點東西吧！");
+            petData.mood = Math.min(100, petData.mood + 15);
+            petData.hunger = Math.max(0, petData.hunger - 10); // 玩耍會餓
+            petData.exp += 10; // 增加經驗值
+            alert("陪它玩了一會兒，心情變好了！✨");
+        }
+        else if(action === 'clean') {
+            petData.mood = Math.min(100, petData.mood + 10);
+            alert("洗得香噴噴的！🛁");
+        }
+        else if(action === 'work') {
+            if(petData.mood < 30) return alert("它心情不好，不想去打工...💢");
+            if(petData.hunger < 30) return alert("肚子太餓了，搬不動磚...😵");
+            petData.hunger -= 20;
+            petData.mood -= 20;
+            const wage = 50 + (petData.level * 5); // 等級越高賺越多
+            balance += wage;
+            petData.exp += 5;
+            alert(`小雞去打工回來了！賺到了 ${wage} 元！💰`);
+        }
+
+        // 檢查升級
+        if(petData.exp > 100 * petData.level) {
+            petData.level++;
+            petData.exp = 0;
+            alert(`🎉 恭喜！電子小雞升級到了 Lv.${petData.level}！`);
+        }
+
+        // 保存數據並刷新介面
+        savePetData();
+        updatePetUI(); // 重新繪製介面顯示新數值
+        updateUI(); // 更新外面的餘額顯示
+    }
+
+    // 5. 保存數據
+    function savePetData() {
+        localStorage.setItem('petData', JSON.stringify(petData));
     }
 </script>
 </body>
