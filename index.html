@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>少女風模擬手機 - 功能完全體</title>
+    <style>
+        :root {
+            --primary-pink: #ffafcc;
+            --light-pink: #ffc2d1;
+            --accent-pink: #fb6f92;
+            --bg-color: #fff0f3;
+            --text-color: #5c5c5c;
+            --price-red: #ff4d4f;
+        }
+
+        body { background: #ffe5ec; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: "Microsoft JhengHei", sans-serif; overflow: hidden; }
+
+        /* iPhone 框架 */
+        .iphone-frame { width: 375px; height: 760px; background: #333; border-radius: 55px; padding: 12px; box-shadow: 0 50px 100px rgba(0,0,0,0.3); position: relative; }
+        .phone { width: 100%; height: 100%; background: white; border-radius: 43px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+        .notch { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 120px; height: 30px; background: black; border-radius: 20px; z-index: 5000; }
+
+        /* 頂部標題與好感度 */
+        .header { background: var(--primary-pink); color: white; padding: 45px 25px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        .tab-bar { display: flex; background: white; border-bottom: 1px solid #eee; z-index: 10; }
+        .tab-item { flex: 1; text-align: center; padding: 12px; font-size: 14px; cursor: pointer; color: #888; }
+        .tab-item.active { color: var(--accent-pink); font-weight: bold; border-bottom: 2px solid var(--accent-pink); }
+
+        .content-view { flex: 1; overflow-y: auto; display: none; background: var(--bg-color); }
+        .content-view.active { display: block; }
+
+        /* 聊天氣泡 */
+        .chat-area { padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        .msg-row { display: flex; gap: 8px; align-items: flex-start; transition: 0.3s; position: relative; }
+        .msg-row.user-row { flex-direction: row-reverse; }
+        .select-box { width: 0; overflow: hidden; display: flex; align-items: center; transition: 0.3s; }
+        .delete-mode .select-box { width: 30px; }
+        .bubble { max-width: 68%; padding: 12px 14px; border-radius: 20px; font-size: 14px; word-wrap: break-word; cursor: pointer; user-select: none; position: relative; }
+        .bubble.ai { background: white; border-bottom-left-radius: 4px; }
+        .bubble.user { background: var(--primary-pink); color: white; border-bottom-right-radius: 4px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; background-size: cover; background-color: var(--light-pink); cursor: pointer; flex-shrink: 0; }
+        .avatar-ai { background-image: url('https://api.dicebear.com/7.x/adventurer/svg?seed=Aimee'); }
+        .avatar-user { background-image: url('https://api.dicebear.com/7.x/adventurer/svg?seed=Lucky'); }
+
+        /* 表情面板 */
+        #emoji-panel {
+            position: absolute; bottom: -380px; left: 0; width: 100%; height: 350px;
+            background: white; border-top-left-radius: 25px; border-top-right-radius: 25px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 8000;
+            transition: bottom 0.3s ease; display: flex; flex-direction: column;
+        }
+        .e-tabs { display: flex; background: #f9f9f9; border-top-left-radius: 25px; border-top-right-radius: 25px; }
+        .e-tab { flex: 1; padding: 12px; text-align: center; font-size: 12px; cursor: pointer; color: #888; border-bottom: 2px solid transparent; }
+        .e-tab.active { color: var(--accent-pink); border-bottom-color: var(--accent-pink); font-weight: bold; }
+        .e-content { flex: 1; overflow-y: auto; padding: 12px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; align-content: start; }
+        .emoji-item { font-size: 26px; text-align: center; cursor: pointer; }
+        .kao-item { grid-column: span 3; font-size: 13px; background: #fff0f3; padding: 10px; border-radius: 10px; text-align: center; cursor: pointer; }
+        .st-item { grid-column: span 2; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .st-img { width: 100%; height: 60px; object-fit: cover; border-radius: 8px; background: #eee; }
+        .emoji-section-title { grid-column: 1 / 8; font-size: 11px; color: #aaa; margin: 10px 0 5px; }
+
+        /* 商城視圖 */
+        .mall-user-info { display: flex; align-items: center; padding: 12px 15px; background: white; gap: 10px; border-bottom: 1px solid #eee; }
+        .mall-sub-nav { display: flex; gap: 8px; padding: 10px; background: white; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #eee; }
+        .category-btn { padding: 5px 12px; background: #fff0f3; border-radius: 15px; font-size: 11px; cursor: pointer; }
+        .category-btn.active { background: var(--primary-pink); color: white; }
+        .mall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
+        .product-card { background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .product-img { width: 100%; height: 100px; background: #fffafa; display: flex; justify-content: center; align-items: center; font-size: 40px; }
+        .product-info { padding: 10px; }
+        .buy-btn { width: 100%; background: linear-gradient(45deg, #ff9000, #ff5000); color: white; border: none; border-radius: 20px; padding: 6px; cursor: pointer; font-size: 11px; }
+
+        /* 設定面板 */
+        #settings-panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9000; display: none; flex-direction: column; }
+        .settings-header { display: flex; align-items: center; padding: 45px 15px 15px; border-bottom: 1px solid #eee; }
+        .settings-tabs { display: flex; background: #f9f9f9; }
+        .s-tab { flex: 1; padding: 10px; text-align: center; font-size: 11px; cursor: pointer; border-bottom: 1px solid #ddd; }
+        .s-tab.active { border-bottom: 2px solid var(--accent-pink); color: var(--accent-pink); font-weight: bold; }
+        .s-content { padding: 15px; flex: 1; overflow-y: auto; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 11px; color: #888; margin-bottom: 5px; }
+        .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid #ffdae0; border-radius: 12px; box-sizing: border-box; outline: none; }
+        textarea { width: 100%; height: 100px; border: 1px solid #ffdae0; border-radius: 12px; padding: 10px; font-size: 12px; resize: none; box-sizing: border-box; }
+
+        /* 底部 */
+        .footer-container { background: #fff; border-top: 1px solid #eee; padding-bottom: 25px; transition: 0.3s; }
+        .footer { padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
+        input#msg-input { flex: 1; border: none; background: #f0f0f0; border-radius: 20px; padding: 10px 15px; outline: none; }
+        #action-sheet { position: absolute; bottom: -280px; left: 0; width: 100%; background: white; border-top-left-radius: 25px; border-top-right-radius: 25px; z-index: 9500; display: flex; flex-direction: column; transition: 0.3s; padding-bottom: 30px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
+        .action-item { padding: 15px; text-align: center; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 15px; }
+        .home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 120px; height: 5px; background: #ccc; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="iphone-frame">
+    <div class="notch"></div>
+    <div class="phone">
+        <div class="header">
+            <div style="width: 20px;"></div> 
+
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <span id="display-char-name" style="font-size: 15px;">🎀 AI 小甜心</span>
+                <div style="font-size: 10px; margin-top: 2px; opacity: 0.9; font-weight: normal;">
+                    💖 <span id="header-favor">520</span>
+                </div>
+            </div>
+
+            <div onclick="toggleSettings(true)" style="cursor:pointer; font-size: 18px;">⚙️</div>
+        </div>
+
+        <div class="tab-bar">
+            <div class="tab-item active" onclick="switchView('chat', this)">消息</div>
+            <div class="tab-item" onclick="switchView('mall', this)">商城</div>
+        </div>
+        
+        <div id="view-chat" class="content-view active" onclick="closePopups()">
+            <div class="chat-area" id="chat"></div>
+        </div>
+
+        <div id="view-mall" class="content-view">
+            <div class="mall-user-info">
+                <div class="avatar avatar-user" style="width:35px; height:35px;"></div>
+                
+                <div style="flex:1; font-size:12px; margin-left: 10px;">
+                    <div style="display: flex; align-items: center;">
+                        <b id="display-user-name">幸運小主</b>
+                        <span onclick="filterMall('bag', null)" style="cursor:pointer; margin-left: 5px; font-size: 14px;" title="我的背包">🎒</span>
+                    </div>
+                    <div style="margin-top: 2px;">餘額: <span id="mall-balance" style="color:var(--price-red);">1000</span></div>
+                </div>
+
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="aiAddNewProducts(null)" style="background: white; color: var(--accent-pink); border: 1px solid var(--accent-pink); border-radius:12px; padding:5px 10px; font-size:11px; cursor: pointer;">✨ 上新</button>
+                    <button onclick="aiAutoShop()" style="background:var(--accent-pink); color:white; border:none; border-radius:12px; padding:5px 10px; font-size:11px; cursor: pointer;">讓 Ta 選購</button>
+                </div>
+            </div>
+
+            <div class="mall-sub-nav">
+                <div class="category-btn active" onclick="filterMall('all', this)">📦 全部</div>
+                <div class="category-btn" onclick="filterMall('food', this)">🍦 食物</div>
+                <div class="category-btn" onclick="filterMall('cloth', this)">👗 衣服</div>
+            </div>
+
+            <div class="mall-grid" id="mall-display"></div>
+        </div>
+
+        <div id="emoji-panel" onclick="event.stopPropagation()">
+            <div class="e-tabs">
+                <div class="e-tab active" onclick="switchETab(0)">Emoji</div>
+                <div class="e-tab" onclick="switchETab(1)">顏文字</div>
+                <div class="e-tab" onclick="switchETab(2)">AI表情庫</div>
+            </div>
+            <div id="emoji-content" class="e-content"></div>
+        </div>
+
+        <div id="settings-panel">
+            <div class="settings-header">
+                <div onclick="toggleSettings(false)" style="color:var(--accent-pink); cursor:pointer; font-weight:bold;">＜ 返回</div>
+                <div style="flex:1; text-align:center; font-weight:bold; margin-right:30px;">設定中心</div>
+            </div>
+            <div class="settings-tabs">
+                <div class="s-tab active" onclick="switchSTab(0)">API</div>
+                <div class="s-tab" onclick="switchSTab(1)">User人設</div>
+                <div class="s-tab" onclick="switchSTab(2)">Char人設</div>
+                <div class="s-tab" onclick="switchSTab(3)">世界書</div>
+            </div>
+            <div class="s-content" id="s-content-box"></div>
+            <div style="padding:15px; border-top:1px solid #eee;">
+                <button onclick="saveAllSettings()" style="width:100%; background:var(--accent-pink); color:white; border:none; border-radius:15px; padding:12px; font-weight:bold;">儲存設定</button>
+            </div>
+        </div>
+
+        <div class="footer-container" id="footer-group">
+            <div class="footer">
+                <div class="icon-btn" onclick="toggleEmoji(event)">😊</div>
+                <input type="text" id="msg-input" placeholder="傳送消息..." onkeypress="if(event.key==='Enter') userSubmit()">
+                <div class="icon-btn" onclick="toggleTools()">➕</div>
+                <button style="background:transparent; border:none; font-size:28px; cursor:pointer;" onclick="jupiterTrigger()">🪐</button>
+            </div>
+            <div class="home-indicator"></div>
+        </div>
+
+        <div id="action-sheet">
+            <div class="action-item" onclick="editCurrentMsg()">編輯</div>
+            <div class="action-item" id="regen-btn" onclick="regenCurrentMsg()">重新生成</div>
+            <div class="action-item" onclick="enterDeleteMode()">多選刪除</div>
+            <div class="action-item" onclick="hideActionSheet()" style="color:#aaa">取消</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 數據狀態 ---
+    // 新增: inventory (修正背包報錯), currentTargetId (用於操作菜單), timer (用於長按)
+    let balance = 1000, favor = 520, lastUserMsg = "", stickerLib = JSON.parse(localStorage.getItem('stickerLib') || '[]');
+    let inventory = []; 
+    let currentTargetId = null;
+    let timer = null;
+    
+    // 預設數據
+    let userData = { name: "幸運小主", info: "喜歡可愛東西的旅行者。" };
+    let charData = { name: "AI 小甜心", info: "活潑開朗，依賴主人的少女。" };
+    let products = [{id:1, name:"草莓大幅", price:25, icon:"🍡", cat:"food"}, {id:2, name:"萌萌女僕裝", price:450, icon:"👗", cat:"cloth"}];
+    
+    // 表情庫
+    const emojiFaces = ["😊","😃","🤣","😇","😋","🧐","🥳","😏","😔","🥺","🥵","🤯"];
+    const emojiFood = ["🍓","🍰","🍨","🧋","☕","🍬"];
+    const kaomojis = ["(✿◡‿◡)", "(´▽`ʃ♡ƪ)", "(｡♥‿♥｡)", "o(*^▽^*)o", "(>_<)", "(OwO)"];
+
+    // 初始化
+    window.onload = () => { 
+        loadAll(); 
+        updateUI(); 
+        switchETab(0); 
+        switchSTab(0); 
+        filterMall('all', document.querySelector('.category-btn')); 
+        appendMessage('ai', "主人！商城、設定、還有你的海量表情包全都回來啦！🌸✨"); 
+    };
+
+    // --- 視圖與介面控制 ---
+    function switchView(view, el) {
+        document.querySelectorAll('.content-view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        document.getElementById(`view-${view}`).classList.add('active'); 
+        el.classList.add('active');
+        document.getElementById('footer-group').style.display = (view === 'chat') ? 'block' : 'none';
+    }
+
+    function toggleSettings(s) { document.getElementById('settings-panel').style.display = s ? 'flex' : 'none'; }
+
+    // --- 設定分頁邏輯 ---
+    function switchSTab(idx) {
+        const box = document.getElementById('s-content-box');
+        document.querySelectorAll('.s-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+        
+        if(idx === 0) {
+            // 修改點：增加了按鈕，並優化了排版
+            box.innerHTML = `
+                <div class="input-group"><label>API Base URL</label><input id="api-url" value="${localStorage.getItem('apiUrl') || 'https://api.openai.com/v1'}"></div>
+                <div class="input-group"><label>API Key</label><input type="password" id="api-key" value="${localStorage.getItem('apiKey') || ''}"></div>
+                <div class="input-group">
+                    <label>模型選擇</label>
+                    <div style="display:flex; gap:5px;">
+                        <select id="api-model" style="flex:1;">
+                            <option value="${localStorage.getItem('apiModel') || 'gpt-3.5-turbo'}">${localStorage.getItem('apiModel') || 'gpt-3.5-turbo (當前)'}</option>
+                        </select>
+                        <button id="btn-fetch-models" onclick="fetchModels()" style="padding:0 10px; border:1px solid #ffafcc; background:white; border-radius:10px; cursor:pointer;">🔄 取得模型</button>
+                    </div>
+                </div>`;
+        } else if(idx === 1) {
+            // 修改點：增加了 User 頭像欄位
+            box.innerHTML = `
+                <div class="input-group"><label>User 名字</label><input id="u-name" value="${userData.name}"></div>
+                <div class="input-group"><label>User 頭像 (URL)</label><input id="u-avatar" value="${userData.avatar || ''}" placeholder="貼上圖片連結..."></div>
+                <div class="input-group"><label>設定 / 備忘錄</label><textarea id="u-info">${userData.info}</textarea></div>`;
+        } else if(idx === 2) {
+            // 修改點：增加了 Char 頭像欄位
+            box.innerHTML = `
+                <div class="input-group"><label>AI 名字</label><input id="c-name" value="${charData.name}"></div>
+                <div class="input-group"><label>AI 頭像 (URL)</label><input id="c-avatar" value="${charData.avatar || ''}" placeholder="貼上圖片連結..."></div>
+                <div class="input-group"><label>AI 人設</label><textarea id="c-info">${charData.info}</textarea></div>`;
+        } else if(idx === 3) {
+            box.innerHTML = `<input type="file" id="wb-upload" onchange="importWB(event)"><p style="font-size:10px; color:#888; margin-top:10px;">支援導入 JSON 格式的世界書或設定檔。</p>`;
+        }
+    }
+    // 補全: 世界書導入邏輯
+    function importWB(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const json = JSON.parse(e.target.result);
+                localStorage.setItem('world_book', JSON.stringify(json));
+                alert("📖 世界書導入成功！已存入記憶庫。");
+            } catch(err) {
+                alert("❌ 格式錯誤，請上傳正確的 JSON 文檔。");
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // --- 表情與貼圖邏輯 ---
+    function switchETab(idx) {
+        const content = document.getElementById('emoji-content');
+        document.querySelectorAll('.e-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+        content.innerHTML = ''; content.className = 'e-content';
+        if(idx === 0) {
+            addESec(content, "表情與人物", emojiFaces); addESec(content, "食物類", emojiFood);
+        } else if(idx === 1) {
+            content.classList.add('kaomoji');
+            kaomojis.forEach(k => {
+                const d = document.createElement('div'); d.className = 'kao-item'; d.innerText = k; d.onclick = () => { document.getElementById('msg-input').value += k; }; content.appendChild(d);
+            });
+        } else if(idx === 2) {
+            content.classList.add('stickers');
+            content.innerHTML = `<button onclick="uploadSticker()" style="grid-column:span 4; margin-bottom:10px; border:1px dashed #ccc; background:white; border-radius:10px; color:#888;">+ 上傳新貼圖</button>`;
+            stickerLib.forEach(s => {
+                const d = document.createElement('div'); d.className = 'st-item';
+                d.innerHTML = `<img src="${s.url}" class="st-img"><span style="font-size:9px;">${s.name}</span>`;
+                d.onclick = () => sendStickerLabel(s.name); content.appendChild(d);
+            });
+        }
+    }
+    function addESec(c, t, l) {
+        const h = document.createElement('div'); h.className = 'emoji-section-title'; h.innerText = t; c.appendChild(h);
+        l.forEach(e => { const s = document.createElement('span'); s.className = 'emoji-item'; s.innerText = e; s.onclick = () => { document.getElementById('msg-input').value += e; }; c.appendChild(s); });
+    }
+
+    // --- 訊息管理 ---
+    function appendMessage(role, content) {
+        const chat = document.getElementById('chat'); const id = 'msg-' + Date.now(); const row = document.createElement('div');
+        row.className = `msg-row ${role === 'user' ? 'user-row' : ''}`; row.id = id;
+        // 注意：長按事件在這裡綁定
+        row.innerHTML = `<div class="select-box"><input type="checkbox"></div><div class="avatar avatar-${role}" ondblclick="nudge()"></div><div class="bubble ${role}">${parseSticker(content)}</div>`;
+        row.onmousedown = () => { timer = setTimeout(() => showAction(id, role), 600); }; 
+        row.onmouseup = () => clearTimeout(timer);
+        row.ontouchstart = () => { timer = setTimeout(() => showAction(id, role), 600); }; // 增加手機端支援
+        row.ontouchend = () => clearTimeout(timer);
+        chat.appendChild(row); document.getElementById('view-chat').scrollTop = document.getElementById('view-chat').scrollHeight;
+    }
+    
+    function parseSticker(t) { return t.replace(/\[表情:\s*(.+?)\]/g, (m, n) => { const s = stickerLib.find(x => x.name === n); return s ? `<img src="${s.url}" style="max-width:130px; border-radius:10px; display:block; margin:5px 0;">` : m; }); }
+    function nudge() { appendMessage('ai', `哎呀！不要拍拍我啦～🌸`); }
+
+    // 補全: 消息操作功能 (編輯、重置、刪除)
+    function showAction(id, role) { currentTargetId = id; document.getElementById('action-sheet').style.bottom = '0'; }
+    function hideActionSheet() { document.getElementById('action-sheet').style.bottom = '-280px'; }
+    
+    function editCurrentMsg() {
+        if(!currentTargetId) return;
+        const bubble = document.getElementById(currentTargetId).querySelector('.bubble');
+        const newTxt = prompt("編輯消息：", bubble.innerText);
+        if(newTxt) bubble.innerText = newTxt;
+        hideActionSheet();
+    }
+    
+    function regenCurrentMsg() {
+        // 簡單邏輯：刪除最後一條 AI 消息並觸發重新生成
+        const chat = document.getElementById('chat');
+        if(chat.lastChild && chat.lastChild.querySelector('.avatar-ai')) {
+            chat.removeChild(chat.lastChild);
+            jupiterTrigger(); // 重新觸發 API
+        }
+        hideActionSheet();
+    }
+    
+    function enterDeleteMode() {
+        document.body.classList.add('delete-mode');
+        alert("已進入刪除模式，選中氣泡後請點擊頂部返回退出 (刪除邏輯需後端配合，此為演示 UI)");
+        hideActionSheet();
+        // 演示：3秒後自動退出，實際開發可加個刪除按鈕
+        setTimeout(() => document.body.classList.remove('delete-mode'), 3000);
+    }
+
+    // --- 商城邏輯 ---
+    function filterMall(cat, el) {
+        if(el) {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+        }
+        const display = document.getElementById('mall-display'); display.innerHTML = '';
+        const f = cat === 'all' ? products : (cat === 'bag' ? inventory : products.filter(p => p.cat === cat));
+        f.forEach((p, idx) => {
+            display.innerHTML += `<div class="product-card"><div class="product-img">${p.icon}</div><div class="product-info"><div style="font-size:11px;">${p.name}</div><div style="color:red; font-weight:bold;">¥${p.price || '--'}</div><button class="buy-btn" onclick="${cat==='bag'?'useItem('+idx+')':'buyProd('+p.id+')'}">${cat==='bag'?'使用':'購買'}</button></div></div>`;
+        });
+    }
+
+    // 補全: 商城自動功能
+    function aiAutoShop() {
+        const item = products[Math.floor(Math.random() * products.length)];
+        if(balance >= item.price) {
+            balance -= item.price;
+            inventory.push(item);
+            updateUI();
+            alert(`AI 自己買了 ${item.name}！好開心！✨`);
+        } else {
+            alert("嗚嗚，餘額不足，買不起...");
+        }
+    }
+    
+    function aiAddNewProducts(el) {
+        filterMall('all', el); // 暫時切換回全部
+        alert("✨ 魔法刷新！商城貨架整理中...");
+    }
+
+    // --- 存檔與初始化 ---
+    function loadAll() {
+        const u = localStorage.getItem('userData'), c = localStorage.getItem('charData'), inv = localStorage.getItem('inventory');
+        if(u) userData = JSON.parse(u); 
+        if(c) charData = JSON.parse(c);
+        if(inv) inventory = JSON.parse(inv);
+    }
+    function updateUI() {
+        document.getElementById('header-favor').innerText = favor; 
+        document.getElementById('mall-balance').innerText = balance;
+        document.getElementById('display-char-name').innerText = "🎀 " + charData.name; 
+        document.getElementById('display-user-name').innerText = userData.name;
+        
+        // --- 新增: 動態更新頭像 ---
+        // 如果沒有設定頭像，就使用預設的 DiceBear 圖片
+        const defaultUser = 'https://api.dicebear.com/7.x/adventurer/svg?seed=Lucky';
+        const defaultChar = 'https://api.dicebear.com/7.x/adventurer/svg?seed=Aimee';
+        
+        const userUrl = userData.avatar || defaultUser;
+        const charUrl = charData.avatar || defaultChar;
+
+        // 強制更新所有相關的頭像元素
+        document.querySelectorAll('.avatar-user').forEach(el => el.style.backgroundImage = `url('${userUrl}')`);
+        document.querySelectorAll('.avatar-ai').forEach(el => el.style.backgroundImage = `url('${charUrl}')`);
+
+        // 同步保存
+        localStorage.setItem('userData', JSON.stringify(userData));
+        localStorage.setItem('charData', JSON.stringify(charData));
+        localStorage.setItem('inventory', JSON.stringify(inventory));
+    }
+
+    // --- 其他功能與 API ---
+    function toggleEmoji(e) { e.stopPropagation(); const p = document.getElementById('emoji-panel'); p.style.bottom = p.style.bottom === '0px' ? '-380px' : '0px'; }
+    function closePopups() { document.getElementById('emoji-panel').style.bottom = '-380px'; hideActionSheet(); }
+    
+    function userSubmit() { 
+        const i = document.getElementById('msg-input'); 
+        if(i.value.trim()){ 
+            appendMessage('user', i.value); 
+            lastUserMsg = i.value; 
+            i.value = ''; 
+            closePopups(); 
+            // 用戶發送後自動觸發 AI 回覆
+            setTimeout(jupiterTrigger, 1000);
+        } 
+    }
+    
+    // 補全: API 連接邏輯 (Jupiter Trigger)
+    async function jupiterTrigger() {
+        const apiKey = document.getElementById('api-key')?.value || localStorage.getItem('apiKey');
+        const apiUrl = document.getElementById('api-url')?.value || "https://api.openai.com/v1";
+        
+        // 模擬思考狀態
+        const tempId = 'thinking-' + Date.now();
+        const chat = document.getElementById('chat');
+        const loadingRow = document.createElement('div');
+        loadingRow.className = 'msg-row'; loadingRow.id = tempId;
+        loadingRow.innerHTML = `<div class="avatar avatar-ai"></div><div class="bubble ai" style="color:#aaa;">(思考中...🪐)</div>`;
+        chat.appendChild(loadingRow);
+        chat.scrollTop = chat.scrollHeight;
+
+        if (!apiKey) {
+            document.getElementById(tempId).remove();
+            appendMessage('ai', "主人，請先點擊右上角⚙️設定，輸入您的 API Key 哦！");
+            return;
+        }
+
+        try {
+            // 這裡構建一個簡單的請求
+            const messages = [
+                { role: "system", content: `${charData.name}的設定: ${charData.info}。用戶是${userData.name}: ${userData.info}。請用可愛、簡短的語氣對話。` },
+                { role: "user", content: lastUserMsg || "早安" }
+            ];
+
+            const res = await fetch(`${apiUrl}/chat/completions`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+                body: JSON.stringify({ model: "gpt-3.5-turbo", messages: messages })
+            });
+
+            const data = await res.json();
+            document.getElementById(tempId).remove(); // 移除思考氣泡
+
+            if (data.choices && data.choices.length > 0) {
+                appendMessage('ai', data.choices[0].message.content);
+            } else {
+                appendMessage('ai', "嗚嗚，連接外星訊號失敗了... (API Error)");
+            }
+        } catch (e) {
+            document.getElementById(tempId).remove();
+            appendMessage('ai', `發生錯誤了：${e.message}`);
+        }
+    }
+
+    function uploadSticker() { 
+        const n = prompt("表情名稱："); if(!n) return;
+        const i = document.createElement('input'); i.type = 'file'; i.onchange = (e) => {
+            const r = new FileReader(); r.onload = (ev) => { stickerLib.push({name: n, url: ev.target.result}); localStorage.setItem('stickerLib', JSON.stringify(stickerLib)); switchETab(2); }; r.readAsDataURL(e.target.files[0]);
+        }; i.click();
+    }
+    function sendStickerLabel(n) { appendMessage('user', `[表情: ${n}]`); closePopups(); setTimeout(jupiterTrigger, 1000); }
+    function buyProd(id) { const p = products.find(x => x.id === id); if(balance >= p.price){ balance -= p.price; inventory.push(p); updateUI(); alert("已購買"); } else { alert("餘額不足！"); } }
+    function useItem(idx) { inventory.splice(idx, 1); updateUI(); filterMall('bag', null); alert("使用了物品！好感度上升！💖"); favor+=10; updateUI(); }
+    
+    function saveAllSettings() { 
+        // 1. 保存 API 設定
+        if(document.getElementById('api-url')) {
+            localStorage.setItem('apiUrl', document.getElementById('api-url').value);
+            localStorage.setItem('apiKey', document.getElementById('api-key').value);
+            localStorage.setItem('apiModel', document.getElementById('api-model').value);
+        }
+        
+        // 2. 保存 User 數據 (含頭像)
+        if(document.getElementById('u-name')) {
+            userData.name = document.getElementById('u-name').value;
+            userData.info = document.getElementById('u-info').value;
+            userData.avatar = document.getElementById('u-avatar').value; // 新增
+        }
+
+        // 3. 保存 Char 數據 (含頭像)
+        if(document.getElementById('c-name')) {
+            charData.name = document.getElementById('c-name').value;
+            charData.info = document.getElementById('c-info').value;
+            charData.avatar = document.getElementById('c-avatar').value; // 新增
+        }
+        updateUI();
+        alert("設定已儲存並生效！✨"); 
+        toggleSettings(false); 
+    }
+    
+    // --- 替換原有的 toggleTools ---
+    function toggleTools() {
+         const sheet = document.getElementById('action-sheet');
+         // 這裡我們借用 action-sheet 的樣式，但動態改變內容
+         const html = `
+            <div style="padding:15px; font-weight:bold; color:#888; font-size:12px;">✨ 甜蜜互動</div>
+            <div class="action-item" onclick="triggerEvent('movie')">🎬 一起看電影</div>
+            <div class="action-item" onclick="triggerEvent('sleep')">🛌 哄睡模式</div>
+            <div class="action-item" onclick="triggerEvent('game')">🎮 一起玩遊戲</div>
+            <div class="action-item" onclick="triggerEvent('phone')">📱 突擊檢查手機</div>
+            <div class="action-item" onclick="hideActionSheet()" style="color:#aaa">取消</div>
+         `;
+         sheet.innerHTML = html;
+         sheet.style.bottom = '0';
+    }
+
+    // --- 新增: 處理互動事件 ---
+    function triggerEvent(type) {
+        hideActionSheet();
+        let promptText = "";
+        
+        // 根據選擇的類型，決定使用者發送什麼隱藏指令
+        if(type === 'movie') {
+            promptText = "（拿著爆米花與你並肩坐下）親愛的，我們今晚看什麼電影好呢？";
+            appendMessage('user', "🎬 邀請看電影..."); // 介面上顯示簡單的
+        } else if(type === 'sleep') {
+            promptText = "（鑽進被窩，聲音變得輕柔）天黑了，該睡覺囉...可以講個睡前故事給我聽嗎？";
+            appendMessage('user', "🛌 進入哄睡模式...");
+            // 這裡可以加一個變黑的特效，更有氣氛
+            document.body.style.filter = "brightness(0.7)";
+            setTimeout(() => document.body.style.filter = "brightness(1)", 5000); // 5秒後恢復
+        } else if(type === 'game') {
+            promptText = "（遞給你一支遊戲手把）來決勝負吧！輸的人要答應對方一個要求哦！";
+            appendMessage('user', "🎮 發起遊戲挑戰...");
+        } else if(type === 'phone') {
+            promptText = "（突然湊近盯著你看）把手機交出來～我要檢查有沒有跟別的 AI 聊天！";
+            appendMessage('user', "📱 突擊檢查手機！");
+        }
+        // 這裡我們手動更新 lastUserMsg，然後觸發 AI 回覆
+        lastUserMsg = promptText; 
+        
+        // 延遲一下讓 AI 回覆，製造真實感
+        setTimeout(() => {
+            jupiterTrigger(); // 呼叫 AI
+        }, 800);
+    }
+  // --- 新增: 獲取模型列表 ---
+    async function fetchModels() {
+        const url = document.getElementById('api-url').value;
+        const key = document.getElementById('api-key').value;
+        const select = document.getElementById('api-model');
+        const btn = document.getElementById('btn-fetch-models');
+        
+        if(!url || !key) return alert("主人，請先填好 API 網址和 Key 才能獲取唷！😣");
+
+        try {
+            btn.innerText = "讀取中...";
+            const res = await fetch(`${url}/models`, {
+                headers: { "Authorization": `Bearer ${key}` }
+            });
+            const data = await res.json();
+            
+            // 兼容 OpenAI 格式
+            if(data.data && Array.isArray(data.data)){
+                select.innerHTML = ''; // 清空現有選項
+                data.data.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.innerText = m.id;
+                    select.appendChild(opt);
+                });
+                alert(`成功捕捉到 ${data.data.length} 個模型！✨`);
+            } else {
+                throw new Error("格式不符");
+            }
+        } catch(e) {
+            alert("獲取失敗...請檢查網址或 Key 是否正確 (或是該 API 不支援列表獲取)");
+        } finally {
+            btn.innerText = "🔄 取得模型";
+        }
+    }
+</script>
+</body>
+</html>
