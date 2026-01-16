@@ -3,34 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>少女風模擬手機 - 功能完全體</title>
+    <title>少女風模擬手機 - 終極完整版</title>
     <style>
-        :root {
-            --primary-pink: #ffafcc;
-            --light-pink: #ffc2d1;
-            --accent-pink: #fb6f92;
-            --bg-color: #fff0f3;
-            --text-color: #5c5c5c;
-            --price-red: #ff4d4f;
-        }
-
+        :root { --primary-pink: #ffafcc; --light-pink: #ffc2d1; --accent-pink: #fb6f92; --bg-color: #fff0f3; --text-color: #5c5c5c; --price-red: #ff4d4f; }
         body { background: #ffe5ec; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: "Microsoft JhengHei", sans-serif; overflow: hidden; }
-
-        /* iPhone 框架 */
+        
+        /* 手機框架 */
         .iphone-frame { width: 375px; height: 760px; background: #333; border-radius: 55px; padding: 12px; box-shadow: 0 50px 100px rgba(0,0,0,0.3); position: relative; }
         .phone { width: 100%; height: 100%; background: white; border-radius: 43px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
         .notch { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 120px; height: 30px; background: black; border-radius: 20px; z-index: 5000; }
+        
+        /* 頂部標題 */
+        .header { background: var(--primary-pink); color: white; padding: 45px 20px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        
+        /* 開關樣式 */
+        .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent-pink); }
+        input:checked + .slider:before { transform: translateX(20px); }
 
-        /* 頂部標題與好感度 */
-        .header { background: var(--primary-pink); color: white; padding: 45px 25px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        /* 導航與視圖 */
         .tab-bar { display: flex; background: white; border-bottom: 1px solid #eee; z-index: 10; }
         .tab-item { flex: 1; text-align: center; padding: 12px; font-size: 14px; cursor: pointer; color: #888; }
         .tab-item.active { color: var(--accent-pink); font-weight: bold; border-bottom: 2px solid var(--accent-pink); }
-
         .content-view { flex: 1; overflow-y: auto; display: none; background: var(--bg-color); }
         .content-view.active { display: block; }
 
-        /* 聊天氣泡 */
+        /* 聊天室 */
         .chat-area { padding: 15px; display: flex; flex-direction: column; gap: 15px; }
         .msg-row { display: flex; gap: 8px; align-items: flex-start; transition: 0.3s; position: relative; }
         .msg-row.user-row { flex-direction: row-reverse; }
@@ -42,12 +43,7 @@
         .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; background-size: cover; background-color: var(--light-pink); cursor: pointer; flex-shrink: 0; }
         
         /* 表情面板 */
-        #emoji-panel {
-            position: absolute; bottom: -380px; left: 0; width: 100%; height: 350px;
-            background: white; border-top-left-radius: 25px; border-top-right-radius: 25px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 8000;
-            transition: bottom 0.3s ease; display: flex; flex-direction: column;
-        }
+        #emoji-panel { position: absolute; bottom: -380px; left: 0; width: 100%; height: 350px; background: white; border-top-left-radius: 25px; border-top-right-radius: 25px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 8000; transition: bottom 0.3s ease; display: flex; flex-direction: column; }
         .e-tabs { display: flex; background: #f9f9f9; border-top-left-radius: 25px; border-top-right-radius: 25px; }
         .e-tab { flex: 1; padding: 12px; text-align: center; font-size: 12px; cursor: pointer; color: #888; border-bottom: 2px solid transparent; }
         .e-tab.active { color: var(--accent-pink); border-bottom-color: var(--accent-pink); font-weight: bold; }
@@ -58,7 +54,7 @@
         .st-img { width: 100%; height: 60px; object-fit: cover; border-radius: 8px; background: #eee; }
         .emoji-section-title { grid-column: 1 / 8; font-size: 11px; color: #aaa; margin: 10px 0 5px; }
 
-        /* 商城視圖 */
+        /* 商城 */
         .mall-user-info { display: flex; align-items: center; padding: 12px 15px; background: white; gap: 10px; border-bottom: 1px solid #eee; }
         .mall-sub-nav { display: flex; gap: 8px; padding: 10px; background: white; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #eee; }
         .category-btn { padding: 5px 12px; background: #fff0f3; border-radius: 15px; font-size: 11px; cursor: pointer; }
@@ -81,53 +77,33 @@
         .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid #ffdae0; border-radius: 12px; box-sizing: border-box; outline: none; }
         textarea { width: 100%; height: 100px; border: 1px solid #ffdae0; border-radius: 12px; padding: 10px; font-size: 12px; resize: none; box-sizing: border-box; }
 
-        /* 底部 */
+        /* 底部與選單 */
         .footer-container { background: #fff; border-top: 1px solid #eee; padding-bottom: 25px; transition: 0.3s; }
         .footer { padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
         input#msg-input { flex: 1; border: none; background: #f0f0f0; border-radius: 20px; padding: 10px 15px; outline: none; }
-        #action-sheet { 
-    position: absolute; 
-    bottom: 0; /* 改成 0，讓它貼齊底部 */
-    left: 0; 
-    width: 100%; 
-    background: white; 
-    border-top-left-radius: 25px; 
-    border-top-right-radius: 25px; 
-    z-index: 9500; 
-    display: flex; 
-    flex-direction: column; 
-    transition: transform 0.3s ease; /* 改用 transform 動畫 */
-    padding-bottom: 30px; 
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.1); 
-    transform: translateY(100%); /* 關鍵：往下移動自身高度的 100% (完全隱藏) */
-}
+        
+        #action-sheet { position: absolute; bottom: 0; left: 0; width: 100%; background: white; border-top-left-radius: 25px; border-top-right-radius: 25px; z-index: 9500; display: flex; flex-direction: column; transition: transform 0.3s ease; padding-bottom: 30px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); transform: translateY(100%); }
         .action-item { padding: 15px; text-align: center; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 15px; }
         .home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 120px; height: 5px; background: #ccc; border-radius: 10px; }
 
-        /* --- 新增: 萬能 APP 視窗樣式 --- */
-        .app-modal-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 10000;
-            display: none; justify-content: center; align-items: center;
-            opacity: 0; transition: opacity 0.3s;
-        }
+        /* APP 視窗 */
+        .app-modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .app-modal-overlay.open { display: flex; opacity: 1; }
-        .app-window {
-            width: 85%; height: 70%; 
-            background: white; border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: flex; flex-direction: column; overflow: hidden;
-            transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        .app-window { width: 85%; height: 70%; background: white; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .app-modal-overlay.open .app-window { transform: scale(1); }
-        .app-header {
-            background: var(--primary-pink); color: white; padding: 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            font-weight: bold; font-size: 14px;
-        }
+        .app-header { background: var(--primary-pink); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 14px; }
         .app-body { flex: 1; padding: 15px; overflow-y: auto; background: #fffafa; }
         .close-btn { cursor: pointer; font-size: 18px; }
 
+        /* RWD */
+        @media screen and (max-width: 480px) {
+            body { background: #fff0f3; height: 100%; align-items: flex-start; }
+            .iphone-frame { width: 100vw; height: 100vh; border-radius: 0; padding: 0; box-shadow: none; background: transparent; }
+            .phone { border-radius: 0; height: 100%; }
+            .notch { display: none; }
+            .home-indicator { bottom: 20px; }
+            #action-sheet { padding-bottom: 50px; }
+        }
     </style>
 </head>
 <body>
@@ -136,7 +112,11 @@
     <div class="notch"></div>
     <div class="phone">
         <div class="header">
-            <div style="width: 20px;"></div> 
+            <label class="toggle-switch" title="切換線上/線下模式">
+                <input type="checkbox" checked onchange="toggleConnectionMode(this)">
+                <span class="slider"></span>
+            </label>
+            
             <div style="display: flex; flex-direction: column; align-items: center;">
                 <span id="display-char-name" style="font-size: 15px;">🎀 AI 小甜心</span>
                 <div style="font-size: 10px; margin-top: 2px; opacity: 0.9; font-weight: normal;">
@@ -234,33 +214,47 @@
 </div>
 
 <script>
-    // --- 數據狀態 ---
+    // --- 1. 數據狀態與初始化 ---
     let balance = 1000, favor = 520, lastUserMsg = "", stickerLib = JSON.parse(localStorage.getItem('stickerLib') || '[]');
     let inventory = []; 
     let currentTargetId = null;
     let timer = null;
     
-    // 預設數據
+    // 數據存檔 (增加 dialogue 欄位支援)
+    let petData = JSON.parse(localStorage.getItem('petData') || '{"level":1, "hunger":80, "mood":80, "exp":0}');
+    let calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '{}');
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth() + 1;
+
     let userData = { name: "幸運小主", info: "喜歡可愛東西的旅行者。", avatar: "" };
-    let charData = { name: "AI 小甜心", info: "活潑開朗，依賴主人的少女。", avatar: "" };
+    // 注意：這裡預設 charData 多了一個 dialogue 欄位
+    let charData = { name: "AI 小甜心", info: "活潑開朗，依賴主人的少女。", avatar: "", dialogue: "" };
+    
     let products = [{id:1, name:"草莓大幅", price:25, icon:"🍡", cat:"food"}, {id:2, name:"萌萌女僕裝", price:450, icon:"👗", cat:"cloth"}];
     
-    // 表情庫
     const emojiFaces = ["😊","😃","🤣","😇","😋","🧐","🥳","😏","😔","🥺","🥵","🤯"];
     const emojiFood = ["🍓","🍰","🍨","🧋","☕","🍬"];
     const kaomojis = ["(✿◡‿◡)", "(´▽`ʃ♡ƪ)", "(｡♥‿♥｡)", "o(*^▽^*)o", "(>_<)", "(OwO)"];
+    
+    const posts = [
+        { author: "甜點控小美", avatar: "🍰", content: "這家的草莓舒芙蕾也太好吃了！入口即化～😋", like: 109 },
+        { author: "隔壁班校草", avatar: "🏀", content: "今天的球賽贏了！感謝大家來幫我加油！", like: 520 },
+        { author: "貓咪鏟屎官", avatar: "🐱", content: "我家的貓終於學會握手了！快誇牠！", like: 88 },
+        { author: "深夜詩人", avatar: "🌙", content: "有時候，這座城市的霓虹燈太亮，反而讓人看不清星星...", like: 42 }
+    ];
 
-    // 初始化
+    const movies = [
+        { name: "鐵達尼號", icon: "🚢", type: "愛情片" }, { name: "咒怨", icon: "👻", type: "恐怖片" },
+        { name: "龍貓", icon: "😺", type: "動畫片" }, { name: "復仇者聯盟", icon: "🦸", type: "動作片" }
+    ];
+
     window.onload = () => { 
-        loadAll(); 
-        updateUI(); 
-        switchETab(0); 
-        switchSTab(0); 
-        filterMall('all', document.querySelector('.category-btn')); 
-        appendMessage('ai', "主人！萬能 APP 視窗系統上線啦！試試看點擊 ➕ 號吧！📱✨"); 
+        loadAll(); updateUI(); switchETab(0); switchSTab(0); filterMall('all', document.querySelector('.category-btn')); 
+        appendMessage('ai', "主人！我回來了！所有功能（包含參考對話）都修復完畢！✨");
+        autoResize(); window.addEventListener('resize', autoResize);
     };
 
-    // --- 視圖與介面控制 ---
+    // --- 2. 視圖與介面控制 ---
     function switchView(view, el) {
         document.querySelectorAll('.content-view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
@@ -271,482 +265,216 @@
 
     function toggleSettings(s) { document.getElementById('settings-panel').style.display = s ? 'flex' : 'none'; }
 
-    // --- 設定分頁邏輯 ---
+    // --- 3. 核心功能: 模式切換開關 ---
+    function toggleConnectionMode(checkbox) {
+        const isOnline = checkbox.checked;
+        const chat = document.getElementById('chat');
+        const sep = document.createElement('div');
+        sep.style.textAlign = 'center'; sep.style.margin = '15px 0'; sep.style.opacity = '0.7';
+        
+        if (!isOnline) {
+            sep.innerHTML = `<span style="font-size:11px; background:#fffafa; padding:5px 15px; border-radius:20px; color:#fb6f92; border:1px dashed #ffafcc;">🏃‍♂️ 已切換至線下模式 (面對面)</span>`;
+            lastUserMsg = "(系統提示：User 剛剛切換到了「面對面/線下模式」。現在你們就在彼此面前。請繼承之前的記憶，描寫你見到 User 的反應（動作/神情），並用面對面的口語開始對話。)";
+            setTimeout(jupiterTrigger, 600); 
+        } else {
+            sep.innerHTML = `<span style="font-size:11px; background:#f0f0f0; padding:5px 15px; border-radius:20px; color:#888;">📶 已恢復線上連線 (手機通訊)</span>`;
+        }
+        chat.appendChild(sep); chat.scrollTop = chat.scrollHeight;
+    }
+
+    // --- 4. 設定分頁邏輯 ---
     function switchSTab(idx) {
         const box = document.getElementById('s-content-box');
         document.querySelectorAll('.s-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
-        
         if(idx === 0) {
-            box.innerHTML = `
-                <div class="input-group"><label>API Base URL</label><input id="api-url" value="${localStorage.getItem('apiUrl') || 'https://api.openai.com/v1'}"></div>
-                <div class="input-group"><label>API Key</label><input type="password" id="api-key" value="${localStorage.getItem('apiKey') || ''}"></div>
-                <div class="input-group">
-                    <label>模型選擇</label>
-                    <div style="display:flex; gap:5px;">
-                        <select id="api-model" style="flex:1;">
-                            <option value="${localStorage.getItem('apiModel') || 'gpt-3.5-turbo'}">${localStorage.getItem('apiModel') || 'gpt-3.5-turbo (當前)'}</option>
-                        </select>
-                        <button id="btn-fetch-models" onclick="fetchModels()" style="padding:0 10px; border:1px solid #ffafcc; background:white; border-radius:10px; cursor:pointer;">🔄 取得模型</button>
-                    </div>
-                </div>`;
+            box.innerHTML = `<div class="input-group"><label>API Base URL</label><input id="api-url" value="${localStorage.getItem('apiUrl') || 'https://api.openai.com/v1'}"></div><div class="input-group"><label>API Key</label><input type="password" id="api-key" value="${localStorage.getItem('apiKey') || ''}"></div><div class="input-group"><label>模型</label><div style="display:flex; gap:5px;"><select id="api-model" style="flex:1;"><option value="${localStorage.getItem('apiModel') || 'gpt-3.5-turbo'}">${localStorage.getItem('apiModel') || 'gpt-3.5-turbo (當前)'}</option></select><button onclick="fetchModels()" style="padding:0 10px; border:1px solid #ffafcc; background:white; border-radius:10px;">🔄</button></div></div>`;
         } else if(idx === 1) {
             box.innerHTML = `
                 <div class="input-group"><label>User 名字</label><input id="u-name" value="${userData.name}"></div>
-                <div class="input-group"><label>User 頭像 (URL)</label><input id="u-avatar" value="${userData.avatar || ''}" placeholder="貼上圖片連結..."></div>
-                <div class="input-group"><label>設定 / 備忘錄</label><textarea id="u-info">${userData.info}</textarea></div>`;
+                <div class="input-group"><label>頭像 (URL)</label><input id="u-avatar" value="${userData.avatar || ''}"></div>
+                <div class="input-group"><label>人物設定</label><textarea id="u-info">${userData.info}</textarea></div>`;
         } else if(idx === 2) {
             box.innerHTML = `
                 <div class="input-group"><label>AI 名字</label><input id="c-name" value="${charData.name}"></div>
-                <div class="input-group"><label>AI 頭像 (URL)</label><input id="c-avatar" value="${charData.avatar || ''}" placeholder="貼上圖片連結..."></div>
-                <div class="input-group"><label>AI 人設</label><textarea id="c-info">${charData.info}</textarea></div>`;
+                <div class="input-group"><label>頭像 (URL)</label><input id="c-avatar" value="${charData.avatar || ''}"></div>
+                <div class="input-group"><label>人物設定</label><textarea id="c-info">${charData.info}</textarea></div>
+                <div class="input-group"><label>參考對話 (範例)</label><textarea id="c-dialogue" placeholder="User: 你好\nAI: 哼，誰准你跟我搭話的？" style="height:120px;">${charData.dialogue || ''}</textarea></div>`;
         } else if(idx === 3) {
-            box.innerHTML = `<input type="file" id="wb-upload" onchange="importWB(event)"><p style="font-size:10px; color:#888; margin-top:10px;">支援導入 JSON 格式的世界書或設定檔。</p>`;
+            box.innerHTML = `<input type="file" onchange="importWB(event)"><p style="font-size:10px; color:#888;">支援 JSON 世界書。</p>`;
         }
     }
+    
+    function importWB(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { localStorage.setItem('world_book', e.target.result); alert("📖 世界書導入成功！"); } catch(err) { alert("❌ 格式錯誤"); } }; reader.readAsText(file); }
+    async function fetchModels() { const k = document.getElementById('api-key').value; const u = document.getElementById('api-url').value; try { const r = await fetch(`${u}/models`,{headers:{"Authorization":`Bearer ${k}`}}); const d = await r.json(); const s = document.getElementById('api-model'); s.innerHTML=''; d.data.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.innerText=m.id;s.appendChild(o)}); alert("模型已更新"); } catch(e){alert("獲取失敗");} }
 
-    // --- 世界書與模型獲取 ---
-    function importWB(event) {
-        const file = event.target.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const json = JSON.parse(e.target.result);
-                localStorage.setItem('world_book', JSON.stringify(json));
-                alert("📖 世界書導入成功！已存入記憶庫。");
-            } catch(err) {
-                alert("❌ 格式錯誤，請上傳正確的 JSON 文檔。");
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    async function fetchModels() {
-        const url = document.getElementById('api-url').value;
-        const key = document.getElementById('api-key').value;
-        const select = document.getElementById('api-model');
-        const btn = document.getElementById('btn-fetch-models');
-        
-        if(!url || !key) return alert("主人，請先填好 API 網址和 Key 才能獲取唷！😣");
-
-        try {
-            btn.innerText = "讀取中...";
-            const res = await fetch(`${url}/models`, { headers: { "Authorization": `Bearer ${key}` } });
-            const data = await res.json();
-            if(data.data && Array.isArray(data.data)){
-                select.innerHTML = ''; 
-                data.data.forEach(m => {
-                    const opt = document.createElement('option'); opt.value = m.id; opt.innerText = m.id; select.appendChild(opt);
-                });
-                alert(`成功捕捉到 ${data.data.length} 個模型！✨`);
-            } else { throw new Error("格式不符"); }
-        } catch(e) { alert("獲取失敗...請檢查網址或 Key"); } finally { btn.innerText = "🔄 取得模型"; }
-    }
-
-    // --- 表情與貼圖邏輯 ---
+    // --- 5. 核心系統 ---
     function switchETab(idx) {
-        const content = document.getElementById('emoji-content');
-        document.querySelectorAll('.e-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
-        content.innerHTML = ''; content.className = 'e-content';
-        if(idx === 0) {
-            addESec(content, "表情與人物", emojiFaces); addESec(content, "食物類", emojiFood);
-        } else if(idx === 1) {
-            content.classList.add('kaomoji');
-            kaomojis.forEach(k => {
-                const d = document.createElement('div'); d.className = 'kao-item'; d.innerText = k; d.onclick = () => { document.getElementById('msg-input').value += k; }; content.appendChild(d);
-            });
-        } else if(idx === 2) {
-            content.classList.add('stickers');
-            content.innerHTML = `<button onclick="uploadSticker()" style="grid-column:span 4; margin-bottom:10px; border:1px dashed #ccc; background:white; border-radius:10px; color:#888;">+ 上傳新貼圖</button>`;
-            stickerLib.forEach(s => {
-                const d = document.createElement('div'); d.className = 'st-item';
-                d.innerHTML = `<img src="${s.url}" class="st-img"><span style="font-size:9px;">${s.name}</span>`;
-                d.onclick = () => sendStickerLabel(s.name); content.appendChild(d);
-            });
-        }
+        const c = document.getElementById('emoji-content'); document.querySelectorAll('.e-tab').forEach((t, i) => t.classList.toggle('active', i === idx)); c.innerHTML = ''; c.className = 'e-content';
+        if(idx === 0) { addESec(c, "表情", emojiFaces); addESec(c, "食物", emojiFood); }
+        else if(idx === 1) { c.classList.add('kaomoji'); kaomojis.forEach(k => { const d=document.createElement('div'); d.className='kao-item'; d.innerText=k; d.onclick=()=>document.getElementById('msg-input').value+=k; c.appendChild(d); }); }
+        else if(idx === 2) { c.classList.add('stickers'); c.innerHTML=`<button onclick="uploadSticker()" style="grid-column:span 4;">+ 新貼圖</button>`; stickerLib.forEach(s => { const d=document.createElement('div'); d.className='st-item'; d.innerHTML=`<img src="${s.url}" class="st-img">`; d.onclick=()=>sendStickerLabel(s.name); c.appendChild(d); }); }
     }
-    function addESec(c, t, l) {
-        const h = document.createElement('div'); h.className = 'emoji-section-title'; h.innerText = t; c.appendChild(h);
-        l.forEach(e => { const s = document.createElement('span'); s.className = 'emoji-item'; s.innerText = e; s.onclick = () => { document.getElementById('msg-input').value += e; }; c.appendChild(s); });
-    }
-
-    // --- 訊息管理 ---
+    function addESec(c, t, l) { const h=document.createElement('div'); h.className='emoji-section-title'; h.innerText=t; c.appendChild(h); l.forEach(e=>{const s=document.createElement('span'); s.className='emoji-item'; s.innerText=e; s.onclick=()=>document.getElementById('msg-input').value+=e; c.appendChild(s);}); }
+    
     function appendMessage(role, content) {
         const chat = document.getElementById('chat'); const id = 'msg-' + Date.now(); const row = document.createElement('div');
         row.className = `msg-row ${role === 'user' ? 'user-row' : ''}`; row.id = id;
         row.innerHTML = `<div class="select-box"><input type="checkbox"></div><div class="avatar avatar-${role}" ondblclick="nudge()"></div><div class="bubble ${role}">${parseSticker(content)}</div>`;
-        
         const avatarUrl = role === 'user' ? (userData.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=Lucky') : (charData.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=Aimee');
         row.querySelector('.avatar').style.backgroundImage = `url('${avatarUrl}')`;
-
-        row.onmousedown = () => { timer = setTimeout(() => showAction(id, role), 600); }; 
-        row.onmouseup = () => clearTimeout(timer);
-        row.ontouchstart = () => { timer = setTimeout(() => showAction(id, role), 600); };
-        row.ontouchend = () => clearTimeout(timer);
+        row.onmousedown = () => { timer = setTimeout(() => showAction(id), 600); }; row.onmouseup = () => clearTimeout(timer);
+        row.ontouchstart = () => { timer = setTimeout(() => showAction(id), 600); }; row.ontouchend = () => clearTimeout(timer);
         chat.appendChild(row); document.getElementById('view-chat').scrollTop = document.getElementById('view-chat').scrollHeight;
     }
-    
-    function parseSticker(t) { return t.replace(/\[表情:\s*(.+?)\]/g, (m, n) => { const s = stickerLib.find(x => x.name === n); return s ? `<img src="${s.url}" style="max-width:130px; border-radius:10px; display:block; margin:5px 0;">` : m; }); }
+    function parseSticker(t) { return t.replace(/\[表情:\s*(.+?)\]/g, (m, n) => { const s = stickerLib.find(x => x.name === n); return s ? `<img src="${s.url}" style="max-width:130px; border-radius:10px;">` : m; }); }
     function nudge() { appendMessage('ai', `哎呀！不要拍拍我啦～🌸`); }
 
-    // 消息操作功能
-    // 1. 顯示操作選單 (長按氣泡時)
-    function showAction(id, role) { 
-        currentTargetId = id; 
-        // 修改: 改成歸零 transform，選單就會滑上來
-        document.getElementById('action-sheet').style.transform = 'translateY(0)'; 
-    }
-    // 2. 隱藏選單 (核心修復)
-    function hideActionSheet() { 
-        // 修改: 改成往下移動 100%，不管選單多長都會完全縮回去
-        document.getElementById('action-sheet').style.transform = 'translateY(100%)'; 
-    }
-    function editCurrentMsg() {
-        if(!currentTargetId) return;
-        const bubble = document.getElementById(currentTargetId).querySelector('.bubble');
-        const newTxt = prompt("編輯消息：", bubble.innerText);
-        if(newTxt) bubble.innerText = newTxt;
-        hideActionSheet();
-    }
-    function regenCurrentMsg() {
-        const chat = document.getElementById('chat');
-        if(chat.lastChild && chat.lastChild.querySelector('.avatar-ai')) {
-            chat.removeChild(chat.lastChild);
-            jupiterTrigger(); 
-        }
-        hideActionSheet();
-    }
-    function enterDeleteMode() {
-        document.body.classList.add('delete-mode');
-        alert("已進入刪除模式 (演示用)");
-        hideActionSheet();
-        setTimeout(() => document.body.classList.remove('delete-mode'), 3000);
-    }
-
-    // --- 商城邏輯 ---
-    function filterMall(cat, el) {
-        if(el) { document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
-        const display = document.getElementById('mall-display'); display.innerHTML = '';
-        const f = cat === 'all' ? products : (cat === 'bag' ? inventory : products.filter(p => p.cat === cat));
-        f.forEach((p, idx) => {
-            display.innerHTML += `<div class="product-card"><div class="product-img">${p.icon}</div><div class="product-info"><div style="font-size:11px;">${p.name}</div><div style="color:red; font-weight:bold;">¥${p.price || '--'}</div><button class="buy-btn" onclick="${cat==='bag'?'useItem('+idx+')':'buyProd('+p.id+')'}">${cat==='bag'?'使用':'購買'}</button></div></div>`;
-        });
-    }
-    function aiAutoShop() {
-        const item = products[Math.floor(Math.random() * products.length)];
-        if(balance >= item.price) { balance -= item.price; inventory.push(item); updateUI(); alert(`AI 自己買了 ${item.name}！好開心！✨`); } else { alert("嗚嗚，餘額不足..."); }
-    }
-    function aiAddNewProducts(el) { filterMall('all', el); alert("✨ 魔法刷新！商城貨架整理中..."); }
-
-    // --- 存檔與初始化 ---
-    function loadAll() {
-        const u = localStorage.getItem('userData'), c = localStorage.getItem('charData'), inv = localStorage.getItem('inventory');
-        if(u) userData = JSON.parse(u); if(c) charData = JSON.parse(c); if(inv) inventory = JSON.parse(inv);
-    }
-    function updateUI() {
-        document.getElementById('header-favor').innerText = favor; document.getElementById('mall-balance').innerText = balance;
-        document.getElementById('display-char-name').innerText = "🎀 " + charData.name; document.getElementById('display-user-name').innerText = userData.name;
-        
-        const defaultUser = 'https://api.dicebear.com/7.x/adventurer/svg?seed=Lucky';
-        const defaultChar = 'https://api.dicebear.com/7.x/adventurer/svg?seed=Aimee';
-        const userUrl = userData.avatar || defaultUser;
-        const charUrl = charData.avatar || defaultChar;
-
-        document.querySelectorAll('.avatar-user').forEach(el => el.style.backgroundImage = `url('${userUrl}')`);
-        document.querySelectorAll('.avatar-ai').forEach(el => el.style.backgroundImage = `url('${charUrl}')`);
-
-        localStorage.setItem('userData', JSON.stringify(userData));
-        localStorage.setItem('charData', JSON.stringify(charData));
-        localStorage.setItem('inventory', JSON.stringify(inventory));
-    }
-
-    // --- APP 視窗控制系統 ---
-    function openApp(appName, htmlContent) {
-        const modal = document.getElementById('app-modal');
-        document.getElementById('app-title').innerText = appName;
-        document.getElementById('app-content').innerHTML = htmlContent;
-        modal.classList.add('open');
-    }
-
-    function closeApp() {
-        const modal = document.getElementById('app-modal');
-        modal.classList.remove('open');
-        setTimeout(() => { document.getElementById('app-content').innerHTML = ''; }, 300);
-    }
-
-    // --- 核心邏輯 (工具、API、記憶) ---
+    function showAction(id) { currentTargetId = id; document.getElementById('action-sheet').style.transform = 'translateY(0)'; }
+    function hideActionSheet() { document.getElementById('action-sheet').style.transform = 'translateY(100%)'; }
     function toggleEmoji(e) { e.stopPropagation(); const p = document.getElementById('emoji-panel'); p.style.bottom = p.style.bottom === '0px' ? '-380px' : '0px'; }
     function closePopups() { document.getElementById('emoji-panel').style.bottom = '-380px'; hideActionSheet(); }
-    
-    function userSubmit() { 
-        const i = document.getElementById('msg-input'); 
-        if(i.value.trim()){ 
-            appendMessage('user', i.value); 
-            lastUserMsg = i.value; 
-            i.value = ''; 
-            closePopups(); 
-        } 
-    }
+    function userSubmit() { const i = document.getElementById('msg-input'); if(i.value.trim()){ appendMessage('user', i.value); lastUserMsg = i.value; i.value = ''; closePopups(); } }
 
     function getChatHistory() {
-        const rows = document.querySelectorAll('.msg-row');
-        let history = [];
-        const start = Math.max(0, rows.length - 15);
+        const rows = document.querySelectorAll('.msg-row'); let history = []; const start = Math.max(0, rows.length - 15);
         for (let i = start; i < rows.length; i++) {
-            const row = rows[i];
-            if (row.querySelector('.bubble').innerText === '輸入中...') continue;
-            const isUser = row.classList.contains('user-row');
-            const text = row.querySelector('.bubble').innerText;
-            history.push({ role: isUser ? "user" : "assistant", content: text });
-        }
-        return history;
+            const row = rows[i]; if (row.querySelector('.bubble').innerText === '輸入中...') continue;
+            history.push({ role: row.classList.contains('user-row') ? "user" : "assistant", content: row.querySelector('.bubble').innerText });
+        } return history;
     }
 
     async function jupiterTrigger() {
-        const apiKey = document.getElementById('api-key')?.value || localStorage.getItem('apiKey');
-        const apiUrl = document.getElementById('api-url')?.value || "https://api.openai.com/v1";
-        const model = document.getElementById('api-model')?.value || localStorage.getItem('apiModel') || "gpt-3.5-turbo";
+        const k = document.getElementById('api-key')?.value || localStorage.getItem('apiKey');
+        const u = document.getElementById('api-url')?.value || "https://api.openai.com/v1";
+        const m = document.getElementById('api-model')?.value || localStorage.getItem('apiModel') || "gpt-3.5-turbo";
         
-        const tempId = 'thinking-' + Date.now();
+        const tId = 'thinking-' + Date.now();
         const chat = document.getElementById('chat');
-        const loadingRow = document.createElement('div');
-        loadingRow.className = 'msg-row'; loadingRow.id = tempId;
-        loadingRow.innerHTML = `<div class="avatar avatar-ai"></div><div class="bubble ai" style="color:#aaa; font-style:italic;">輸入中...</div>`;
-        chat.appendChild(loadingRow);
-        chat.scrollTop = chat.scrollHeight;
+        const l = document.createElement('div'); l.className = 'msg-row'; l.id = tId;
+        l.innerHTML = `<div class="avatar avatar-ai"></div><div class="bubble ai" style="color:#aaa;">輸入中...</div>`;
+        chat.appendChild(l); chat.scrollTop = chat.scrollHeight;
 
-        if (!apiKey) {
-            document.getElementById(tempId).remove();
-            appendMessage('ai', "主人，請先到設定輸入 API Key 哦！");
-            return;
-        }
+        if (!k) { document.getElementById(tId).remove(); appendMessage('ai', "請先設定 API Key 喔！"); return; }
 
         try {
-            let wbPrompt = "";
-            const wbData = localStorage.getItem('world_book');
-            if(wbData) {
-                try {
-                    const json = JSON.parse(wbData);
-                    wbPrompt = "\n[世界觀設定]:\n" + JSON.stringify(json);
-                } catch(e) {}
+            let wb = ""; const w = localStorage.getItem('world_book'); if(w) try { wb = "\n[世界設定]:" + w; } catch(e){}
+            
+            let stylePrompt = "";
+            if (charData.dialogue && charData.dialogue.trim() !== "") {
+                stylePrompt = `\n[說話語氣與對話範例]:\n${charData.dialogue}`;
             }
 
-            const systemMsg = { 
-                role: "system", 
-                content: `${charData.name}的設定: ${charData.info}。\n用戶是${userData.name}: ${userData.info}。\n${wbPrompt}\n請扮演該角色，用口語化、可愛的語氣對話。` 
-            };
+            const sys = { role: "system", content: `${charData.name}設定:${charData.info}。\n用戶:${userData.name}。\n${stylePrompt}\n${wb}\n請扮演該角色。` };
+            const msgs = [sys, ...getChatHistory()];
+            if (lastUserMsg.includes("系統提示")) msgs.push({ role: "system", content: lastUserMsg });
 
-            const history = getChatHistory();
-            const messages = [systemMsg, ...history];
-
-            const res = await fetch(`${apiUrl}/chat/completions`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-                body: JSON.stringify({ model: model, messages: messages, temperature: 0.8 })
-            });
-
-            if (!res.ok) {
-                const errData = await res.json().catch(() => ({}));
-                throw new Error(errData.error?.message || `Status: ${res.status}`);
-            }
-
-            const data = await res.json();
-            document.getElementById(tempId).remove(); 
-            if (data.choices && data.choices.length > 0) {
-                appendMessage('ai', data.choices[0].message.content);
-            } else { appendMessage('ai', "（沈默不語...）"); }
-        } catch (e) {
-            document.getElementById(tempId).remove();
-            console.error(e);
-            let errorMsg = e.message;
-            if (e.name === 'TypeError' && e.message === 'Failed to fetch') errorMsg = "瀏覽器阻擋 (CORS)，請換代理網址";
-            appendMessage('ai', `(失敗) ${errorMsg}`);
-        }
+            const res = await fetch(`${u}/chat/completions`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${k}` }, body: JSON.stringify({ model: m, messages: msgs, temperature: 0.8 }) });
+            if (!res.ok) throw new Error("API Error");
+            const d = await res.json();
+            document.getElementById(tId).remove(); 
+            if (d.choices) appendMessage('ai', d.choices[0].message.content);
+        } catch (e) { document.getElementById(tId).remove(); appendMessage('ai', `(連線失敗) ${e.message}`); }
     }
 
-    // 3. 顯示工具箱 (點擊 + 號時)
+    // --- 6. 應用中心 ---
     function toggleTools() {
          const sheet = document.getElementById('action-sheet');
          const html = `
             <div style="padding:15px; font-weight:bold; color:#888; font-size:12px;">📱 應用中心</div>
-            <div class="action-item" onclick="openGameApp()">🎮 寵物遊戲機 (新功能!)</div>
-            <div class="action-item" onclick="triggerEvent('movie')">🎬 一起看電影</div>
-            <div class="action-item" onclick="openCalendarApp()">📅 日曆管理 (開發中)</div>
+            <div class="action-item" onclick="openGameApp()">🎮 寵物遊戲機</div>
+            <div class="action-item" onclick="openCalendarApp()">📅 戀愛日曆</div>
+            <div class="action-item" onclick="openCinemaApp()">🎬 私人影院</div>
+            <div class="action-item" onclick="openForumApp()">💬 社群動態</div>
+            <div class="action-item" onclick="openPhoneSwapApp()">📱 交換手機 (互看隱私)</div>
             <div class="action-item" onclick="triggerEvent('sleep')">🛌 哄睡模式</div>
             <div class="action-item" onclick="hideActionSheet()" style="color:#aaa">取消</div>
          `;
-         sheet.innerHTML = html;
-         // 修改: 同樣改成歸零 transform
-         sheet.style.transform = 'translateY(0)'; 
+         sheet.innerHTML = html; sheet.style.transform = 'translateY(0)'; 
     }
 
-    function triggerEvent(type) {
-        hideActionSheet();
-        let promptText = "";
-        if(type === 'movie') { promptText = "（拿著爆米花坐下）親愛的，看什麼電影好呢？"; appendMessage('user', "🎬 邀請看電影..."); }
-        else if(type === 'sleep') { promptText = "（鑽進被窩）天黑了，講個故事給我聽嘛...💤"; appendMessage('user', "🛌 進入哄睡模式..."); document.body.style.filter = "brightness(0.7)"; setTimeout(() => document.body.style.filter = "brightness(1)", 5000); }
-        lastUserMsg = promptText; 
-        setTimeout(jupiterTrigger, 800);
-    }
-    
-    // 定義 APP 內容
-    function openGameApp() {
-        hideActionSheet();
-        const petHtml = `
-            <div style="text-align:center;">
-                <div style="font-size:60px; margin:20px;">🐣</div>
-                <h3>電子小雞</h3>
-                <p style="color:#888; font-size:12px;">好感度: ${favor}</p>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
-                    <button onclick="alert('餵食成功！')" style="padding:10px; border-radius:10px; border:1px solid #eee; background:white;">🍖 餵食</button>
-                    <button onclick="alert('摸摸頭！')" style="padding:10px; border-radius:10px; border:1px solid #eee; background:white;">👋 撫摸</button>
-                    <button onclick="alert('去玩耍！')" style="padding:10px; border-radius:10px; border:1px solid #eee; background:white;">⚽ 玩耍</button>
-                    <button onclick="alert('洗香香！')" style="padding:10px; border-radius:10px; border:1px solid #eee; background:white;">🛁 洗澡</button>
-                </div>
-            </div>
-        `;
-        openApp("🎮 寵物遊戲機", petHtml);
-    }
-    function openCalendarApp() {
-        hideActionSheet();
-        openApp("📅 行程日曆", "<p style='text-align:center; color:#ccc; margin-top:50px;'>日曆功能開發中...</p>");
-    }
+    function openApp(t, h) { const m = document.getElementById('app-modal'); document.getElementById('app-title').innerText = t; document.getElementById('app-content').innerHTML = h; m.classList.add('open'); }
+    function closeApp() { document.getElementById('app-modal').classList.remove('open'); setTimeout(() => { document.getElementById('app-content').innerHTML = ''; }, 300); }
 
-    function uploadSticker() { 
-        const n = prompt("表情名稱："); if(!n) return;
-        const i = document.createElement('input'); i.type = 'file'; i.onchange = (e) => {
-            const r = new FileReader(); r.onload = (ev) => { stickerLib.push({name: n, url: ev.target.result}); localStorage.setItem('stickerLib', JSON.stringify(stickerLib)); switchETab(2); }; r.readAsDataURL(e.target.files[0]);
-        }; i.click();
-    }
-    function sendStickerLabel(n) { appendMessage('user', `[表情: ${n}]`); closePopups(); }
-    function buyProd(id) { const p = products.find(x => x.id === id); if(balance >= p.price){ balance -= p.price; inventory.push(p); updateUI(); alert("已購買"); } else { alert("餘額不足！"); } }
-    function useItem(idx) { inventory.splice(idx, 1); updateUI(); filterMall('bag', null); alert("使用了物品！好感度上升！💖"); favor+=10; updateUI(); }
-    
-    function saveAllSettings() { 
-        if(document.getElementById('api-url')) {
-            localStorage.setItem('apiUrl', document.getElementById('api-url').value);
-            localStorage.setItem('apiKey', document.getElementById('api-key').value);
-            localStorage.setItem('apiModel', document.getElementById('api-model').value);
-        }
-        if(document.getElementById('u-name')) {
-            userData.name = document.getElementById('u-name').value;
-            userData.info = document.getElementById('u-info').value;
-            userData.avatar = document.getElementById('u-avatar').value;
-        }
-        if(document.getElementById('c-name')) {
-            charData.name = document.getElementById('c-name').value;
-            charData.info = document.getElementById('c-info').value;
-            charData.avatar = document.getElementById('c-avatar').value;
-        }
-        updateUI(); alert("設定已儲存並生效！✨"); toggleSettings(false); 
-    }
-  // --- 🐣 寵物系統核心邏輯 ---
-    
-    // 1. 定義寵物初始數據 (如果沒有存檔就用這個)
-    let petData = JSON.parse(localStorage.getItem('petData') || '{"level":1, "hunger":80, "mood":80, "exp":0}');
-
-    // 2. 升級版的開啟視窗函數
-    function openGameApp() {
-        hideActionSheet(); // 關閉底部選單
-        updatePetUI(); // 渲染寵物畫面
-    }
-
-    // 3. 渲染寵物畫面 (會根據數據動態改變)
+    function openGameApp() { hideActionSheet(); updatePetUI(); }
     function updatePetUI() {
-        // 根據心情決定表情
-        let petFace = "🐣";
-        if(petData.hunger < 30) petFace = "😵 (餓暈)";
-        else if(petData.mood < 30) petFace = "😭 (難過)";
-        else if(petData.mood > 90) petFace = "🥰 (超開心)";
-        
+        let face = "🐣"; if(petData.hunger<30) face="😵"; else if(petData.mood<30) face="😭"; else if(petData.mood>90) face="🥰";
         const html = `
             <div style="text-align:center; padding:10px;">
-                <div style="font-size:80px; margin:20px; animation: bounce 2s infinite;">${petFace}</div>
+                <div style="font-size:55px; margin:20px; animation: bounce 2s infinite;">${face}</div>
                 <h3>電子小雞 Lv.${petData.level}</h3>
-                
-                <div style="width:80%; margin:0 auto; text-align:left; font-size:12px; color:#666;">
-                    飽食度: ${petData.hunger}%
-                    <div style="background:#eee; height:8px; border-radius:4px; margin-bottom:5px;">
-                        <div style="background:#ffbd59; width:${petData.hunger}%; height:100%; border-radius:4px; transition:0.3s;"></div>
-                    </div>
-                    
-                    心情值: ${petData.mood}%
-                    <div style="background:#eee; height:8px; border-radius:4px; margin-bottom:15px;">
-                        <div style="background:#ff91a4; width:${petData.mood}%; height:100%; border-radius:4px; transition:0.3s;"></div>
-                    </div>
-                </div>
-
+                <div style="font-size:12px; color:#666;">飽食: ${petData.hunger}% | 心情: ${petData.mood}%</div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
-                    <button onclick="interactPet('feed')" style="padding:15px; border-radius:15px; border:1px solid #eee; background:white; cursor:pointer;">
-                        🍗 餵食 <br><span style="font-size:10px; color:#aaa;">-10元 / +飽食</span>
-                    </button>
-                    <button onclick="interactPet('play')" style="padding:15px; border-radius:15px; border:1px solid #eee; background:white; cursor:pointer;">
-                        🎾 玩耍 <br><span style="font-size:10px; color:#aaa;">+心情 / 消耗飽食</span>
-                    </button>
-                    <button onclick="interactPet('clean')" style="padding:15px; border-radius:15px; border:1px solid #eee; background:white; cursor:pointer;">
-                        🛁 洗澡 <br><span style="font-size:10px; color:#aaa;">恢復心情</span>
-                    </button>
-                    <button onclick="interactPet('work')" style="padding:15px; border-radius:15px; border:1px solid #eee; background:white; cursor:pointer;">
-                        💰 打工 <br><span style="font-size:10px; color:#aaa;">賺取零用錢</span>
-                    </button>
+                    <button onclick="interactPet('feed')" style="padding:15px; border:1px solid #eee; background:white;">🍗 餵食</button>
+                    <button onclick="interactPet('play')" style="padding:15px; border:1px solid #eee; background:white;">🎾 玩耍</button>
+                    <button onclick="interactPet('clean')" style="padding:15px; border:1px solid #eee; background:white;">🛁 洗澡</button>
+                    <button onclick="interactPet('work')" style="padding:15px; border:1px solid #eee; background:white;">💰 打工</button>
                 </div>
-            </div>
-            <style>@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }</style>
-        `;
-        
-        // 使用我們之前做的萬能視窗系統
+            </div><style>@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }</style>`;
         openApp("🎮 寵物遊戲機", html);
     }
-
-    // 4. 寵物互動邏輯
-    function interactPet(action) {
-        if(action === 'feed') {
-            if(balance < 10) return alert("錢包空空，買不起飼料了...💸");
-            if(petData.hunger >= 100) return alert("它肚子飽飽的，吃不下了！");
-            balance -= 10;
-            petData.hunger = Math.min(100, petData.hunger + 20);
-            petData.mood = Math.min(100, petData.mood + 5);
-            alert("花了 10元 買飼料，小雞吃得很開心！🍗");
-        } 
-        else if(action === 'play') {
-            if(petData.hunger < 20) return alert("它餓得沒力氣玩了...先餵點東西吧！");
-            petData.mood = Math.min(100, petData.mood + 15);
-            petData.hunger = Math.max(0, petData.hunger - 10); // 玩耍會餓
-            petData.exp += 10; // 增加經驗值
-            alert("陪它玩了一會兒，心情變好了！✨");
-        }
-        else if(action === 'clean') {
-            petData.mood = Math.min(100, petData.mood + 10);
-            alert("洗得香噴噴的！🛁");
-        }
-        else if(action === 'work') {
-            if(petData.mood < 30) return alert("它心情不好，不想去打工...💢");
-            if(petData.hunger < 30) return alert("肚子太餓了，搬不動磚...😵");
-            petData.hunger -= 20;
-            petData.mood -= 20;
-            const wage = 50 + (petData.level * 5); // 等級越高賺越多
-            balance += wage;
-            petData.exp += 5;
-            alert(`小雞去打工回來了！賺到了 ${wage} 元！💰`);
-        }
-
-        // 檢查升級
-        if(petData.exp > 100 * petData.level) {
-            petData.level++;
-            petData.exp = 0;
-            alert(`🎉 恭喜！電子小雞升級到了 Lv.${petData.level}！`);
-        }
-
-        // 保存數據並刷新介面
-        savePetData();
-        updatePetUI(); // 重新繪製介面顯示新數值
-        updateUI(); // 更新外面的餘額顯示
+    function interactPet(a) {
+        if(a==='feed'){ if(balance<10) return alert("沒錢..."); if(petData.hunger>=100) return alert("飽了"); balance-=10; petData.hunger+=20; petData.mood+=5; alert("餵食成功!"); }
+        if(a==='play'){ if(petData.hunger<20) return alert("餓了"); petData.mood+=15; petData.hunger-=10; petData.exp+=10; alert("玩得開心!"); }
+        if(a==='clean'){ petData.mood+=10; alert("香噴噴!"); }
+        if(a==='work'){ if(petData.mood<30||petData.hunger<30) return alert("狀態不好"); petData.hunger-=20; petData.mood-=20; balance+=50+(petData.level*5); petData.exp+=5; alert("打工賺錢了!"); }
+        if(petData.exp>100*petData.level) { petData.level++; petData.exp=0; alert("升級了!"); }
+        localStorage.setItem('petData', JSON.stringify(petData)); updatePetUI(); updateUI();
     }
 
-    // 5. 保存數據
-    function savePetData() {
-        localStorage.setItem('petData', JSON.stringify(petData));
+    function openCinemaApp() { hideActionSheet(); let h = `<div style="padding:10px;"><h3 style="text-align:center;">🎬 週末夜影院</h3><div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">`; movies.forEach(m => h+=`<div onclick="watchMovie('${m.name}','${m.type}')" style="background:white; border:1px solid #eee; border-radius:15px; padding:15px; text-align:center;"><div style="font-size:40px;">${m.icon}</div><div>${m.name}</div></div>`); openApp("🎬 私人影院", h + `</div></div>`); }
+    function watchMovie(n, t) { openApp("🎬 放映廳", `<div style="height:100%; display:flex; justify-content:center; align-items:center; background:black; color:white;">▶️ 正在播放 ${n}...</div>`); setTimeout(() => { closeApp(); appendMessage('user', `🎬 看完了《${n}》`); lastUserMsg = `我們剛看完了《${n}》，是${t}。你覺得如何？`; setTimeout(jupiterTrigger, 800); }, 3000); }
+
+    function openForumApp() { hideActionSheet(); let h = `<div style="padding:5px;"><h3 style="margin:10px;">🔥 熱門動態</h3><div style="display:flex; flex-direction:column; gap:15px;">`; posts.forEach((p, i) => h+=`<div onclick="readPost(${i})" style="background:white; border-radius:15px; padding:15px; cursor:pointer;"><div style="font-weight:bold;">${p.avatar} ${p.author}</div><div>${p.content}</div><div style="color:#fb6f92; margin-top:5px;">❤️ ${p.like} 點擊互動</div></div>`); openApp("💬 社群動態", h + `</div></div>`); }
+    function readPost(i) { const p = posts[i]; openApp("貼文詳情", `<div style="padding:20px; text-align:center; background:white;"><h3>${p.author}</h3><p>${p.content}</p><p style="color:#aaa;">AI 正在輸入評論...</p></div>`); setTimeout(() => { closeApp(); appendMessage('user', `分享貼文: ${p.content}`); lastUserMsg = `看到朋友發文說：「${p.content}」，你怎麼看？`; setTimeout(jupiterTrigger, 800); }, 2000); }
+
+    function openCalendarApp() { hideActionSheet(); renderCalendar(calYear, calMonth); }
+    function renderCalendar(y, m) {
+        const first = new Date(y, m-1, 1).getDay(), days = new Date(y, m, 0).getDate();
+        let h = `<div style="padding:10px;"><div style="display:flex; justify-content:space-between; margin-bottom:10px;"><button onclick="changeMonth(-1)">◀</button><span>${y}年 ${m}月</span><button onclick="changeMonth(1)">▶</button></div><div style="display:grid; grid-template-columns:repeat(7,1fr); text-align:center; gap:5px;">`;
+        for(let i=0; i<first; i++) h+=`<div></div>`;
+        for(let d=1; d<=days; d++) { const k = `${y}-${m}-${d}`, e = calendarEvents[k], bg = e ? 'var(--light-pink)' : '#fff'; h+=`<div onclick="addEvent(${y},${m},${d})" style="height:35px; background:${bg}; border-radius:5px; border:1px solid #eee; display:flex; align-items:center; justify-content:center;">${d}</div>`; }
+        h+=`</div><div style="margin-top:20px; padding:10px; background:#fff;">${Object.keys(calendarEvents).length} 個行程</div><button onclick="shareSchedule()" style="width:100%; margin-top:10px; background:var(--accent-pink); color:white; border:none; padding:10px; border-radius:10px;">📢 告訴 Ta</button></div>`;
+        openApp("📅 戀愛日曆", h);
     }
+    function changeMonth(d) { calMonth+=d; if(calMonth>12){calMonth=1;calYear++} if(calMonth<1){calMonth=12;calYear--} renderCalendar(calYear, calMonth); }
+    function addEvent(y,m,d) { const k = `${y}-${m}-${d}`, v = prompt("行程安排：", calendarEvents[k]||""); if(v!==null) { if(v.trim()) calendarEvents[k]=v; else delete calendarEvents[k]; localStorage.setItem('calendarEvents',JSON.stringify(calendarEvents)); renderCalendar(y,m); } }
+    function shareSchedule() { closeApp(); const tasks = Object.keys(calendarEvents).map(k=>`${k}:${calendarEvents[k]}`).join(","); appendMessage('user', "📅 分享了日曆行程"); lastUserMsg = `這是我最近的行程安排：${tasks||"沒什麼特別的"}，確認一下吧！`; setTimeout(jupiterTrigger, 800); }
+
+    function openPhoneSwapApp() { hideActionSheet(); const h = `<div style="padding:20px; text-align:center;"><h3>交換手機大冒險</h3><p style="color:#888;">考驗信任的時刻...</p><div style="display:flex; flex-direction:column; gap:15px; margin-top:20px;"><button onclick="peekAIPhone()" style="padding:15px; border:2px solid #ffafcc; background:white;">😈 偷看 Ta 的手機</button><button onclick="showUserPhone()" style="padding:15px; background:var(--accent-pink); color:white; border:none;">📱 給 Ta 看我的手機</button></div></div>`; openApp("📱 交換手機", h); }
+    function peekAIPhone() { const s = [{t:"搜尋",c:"如何讓主人更愛我"}, {t:"備忘錄",c:"主人喜歡草莓, 討厭青椒"}, {t:"相簿",c:"全是你的偷拍照"}]; const r = s[Math.floor(Math.random()*s.length)]; openApp("🔓 解鎖成功", `<div style="padding:20px; text-align:center;"><h3>${r.t}</h3><p style="background:#eee; padding:10px;">"${r.c}"</p><p style="color:red;">(臉紅) 哎呀！不可以看這個！</p></div>`); }
+    function showUserPhone() { closeApp(); appendMessage('user', "📱 (緊張) 遞出了手機..."); const f = ["相簿全是貓", "搜尋記錄很奇怪", "桌布是我的照片"]; lastUserMsg = `(檢查你的手機) 發現了：${f[Math.floor(Math.random()*f.length)]}。給我一點反應！`; setTimeout(jupiterTrigger, 1000); }
+
+    function triggerEvent(t) { hideActionSheet(); let p=""; if(t==='sleep'){ p="天黑了，講故事哄我睡覺..."; appendMessage('user', "🛌 進入哄睡模式..."); document.body.style.filter="brightness(0.7)"; setTimeout(()=>document.body.style.filter="brightness(1)",5000); } lastUserMsg=p; setTimeout(jupiterTrigger, 800); }
+
+    function filterMall(cat, el) { if(el) { document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); } const display = document.getElementById('mall-display'); display.innerHTML = ''; const f = cat === 'all' ? products : (cat === 'bag' ? inventory : products.filter(p => p.cat === cat)); f.forEach((p, idx) => { display.innerHTML += `<div class="product-card"><div class="product-img">${p.icon}</div><div class="product-info"><div style="font-size:11px;">${p.name}</div><div style="color:red; font-weight:bold;">¥${p.price || '--'}</div><button class="buy-btn" onclick="${cat==='bag'?'useItem('+idx+')':'buyProd('+p.id+')'}">${cat==='bag'?'使用':'購買'}</button></div></div>`; }); }
+    function buyProd(id) { const p = products.find(x => x.id === id); if(balance >= p.price){ balance -= p.price; inventory.push(p); updateUI(); alert("已購買"); } else { alert("餘額不足！"); } }
+    function useItem(idx) { inventory.splice(idx, 1); updateUI(); filterMall('bag', null); alert("使用了！好感度+10"); favor+=10; updateUI(); }
+    function aiAddNewProducts() { alert("魔法刷新中..."); } function aiAutoShop() { alert("AI 正在選購..."); }
+
+    function loadAll() { const u = localStorage.getItem('userData'), c = localStorage.getItem('charData'), inv = localStorage.getItem('inventory'); if(u) userData = JSON.parse(u); if(c) charData = JSON.parse(c); if(inv) inventory = JSON.parse(inv); }
+    function updateUI() { document.getElementById('header-favor').innerText = favor; document.getElementById('mall-balance').innerText = balance; document.getElementById('display-char-name').innerText = "🎀 " + charData.name; document.getElementById('display-user-name').innerText = userData.name; document.querySelectorAll('.avatar-user').forEach(el => el.style.backgroundImage = `url('${userData.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=Lucky'}')`); document.querySelectorAll('.avatar-ai').forEach(el => el.style.backgroundImage = `url('${charData.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=Aimee'}')`); localStorage.setItem('userData', JSON.stringify(userData)); localStorage.setItem('charData', JSON.stringify(charData)); localStorage.setItem('inventory', JSON.stringify(inventory)); }
+    
+    // 🔥 保存設定 (包含參考對話)
+    function saveAllSettings() { 
+        if(document.getElementById('api-url')) { localStorage.setItem('apiUrl', document.getElementById('api-url').value); localStorage.setItem('apiKey', document.getElementById('api-key').value); localStorage.setItem('apiModel', document.getElementById('api-model').value); }
+        if(document.getElementById('u-name')) { userData.name = document.getElementById('u-name').value; userData.info = document.getElementById('u-info').value; userData.avatar = document.getElementById('u-avatar').value; }
+        
+        if(document.getElementById('c-name')) { 
+            charData.name = document.getElementById('c-name').value; 
+            charData.info = document.getElementById('c-info').value; 
+            charData.avatar = document.getElementById('c-avatar').value; 
+            if(document.getElementById('c-dialogue')) charData.dialogue = document.getElementById('c-dialogue').value;
+        }
+        
+        updateUI(); alert("設定已儲存並生效！✨"); toggleSettings(false); 
+    }
+    function autoResize() { if (window.innerWidth > 480) { const s = Math.min(1, (window.innerHeight - 40) / 760); const f=document.querySelector('.iphone-frame'); f.style.transform = `scale(${s})`; f.style.transformOrigin = 'center center'; } else { document.querySelector('.iphone-frame').style.transform = 'none'; } }
+    
+    function uploadSticker() { const n = prompt("表情名:"); if(!n) return; const i = document.createElement('input'); i.type='file'; i.onchange=e=>{const r=new FileReader(); r.onload=ev=>{stickerLib.push({name:n,url:ev.target.result}); localStorage.setItem('stickerLib',JSON.stringify(stickerLib)); switchETab(2)}; r.readAsDataURL(e.target.files[0])}; i.click(); }
+    function sendStickerLabel(n) { appendMessage('user', `[表情:${n}]`); closePopups(); }
+    function editCurrentMsg() { const b = document.getElementById(currentTargetId).querySelector('.bubble'); const n = prompt("編輯:", b.innerText); if(n) b.innerText = n; hideActionSheet(); }
+    function regenCurrentMsg() { document.getElementById('chat').lastChild.remove(); jupiterTrigger(); hideActionSheet(); }
+    function enterDeleteMode() { alert("刪除模式(演示)"); hideActionSheet(); }
 </script>
 </body>
 </html>
